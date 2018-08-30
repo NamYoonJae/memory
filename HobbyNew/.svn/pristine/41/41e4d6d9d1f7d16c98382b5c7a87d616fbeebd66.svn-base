@@ -1,0 +1,69 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" 
+"http://mybatis.org/dtd/mybatis-3-mapper.dtd"><!-- 이건 mapper 파일이고 버전은 3.0이다 -->
+
+<mapper namespace="icia.mvc.dao.IfreeDAO">
+
+	<!-- 자유게시판 작성란 분류목록 불러오기 -->
+	<select id="freeCN_indexCall" resultType="free">
+		SELECT * FROM CN_VIEW ORDER BY RNUM ASC
+	</select>
+	
+	<!-- 자유게시판 글 작성 시 게시판테이블 등록 -->
+	<insert id="comboardWrite" parameterType="free" useGeneratedKeys="true" keyProperty="cb_index">
+		INSERT INTO COMBOARD(CB_INDEX,M_ID,CB_SUBJECT,CB_CLICK,CB_CONTENT,CB_DATE,CB_SORT) 
+		VALUES(seq_comboard.NEXTVAL,#{m_id},#{cb_subject},'0',#{cb_content},sysdate,#{cb_sort})
+		<selectKey keyProperty="cb_index" resultType="int" order="AFTER">
+			SELECT seq_comboard.currval FROM DUAL
+		</selectKey>
+	</insert>
+
+	<!-- 자유게시판 글 작성 시 자유테이블 등록 -->
+	<insert id="freeBoardWrite" parameterType="free">
+		INSERT INTO FREEBOARD(CB_INDEX,FB_TITLE,CN_INDEX) VALUES(#{cb_index},#{fb_title},#{cn_index})
+	</insert>
+
+	<!-- 자유게시판  글 작성 시 파일테이블 등록 -->
+	<insert id="freeFileInsert" parameterType="files">
+		INSERT INTO FILES VALUES(seq_files.NEXTVAL,#{fs_index},#{cb_index},#{m_id},#{f_oriName},#{f_newName})
+	</insert>
+	
+	<!-- 자유게시판 리스트 불러오기 -->
+	<select id="freeList" parameterType="int" resultType="free">
+		SELECT * FROM FB_VIEW2 WHERE CB_SORT='1' ORDER BY CB_DATE DESC
+	</select>
+	
+	<!-- 자유게시판 상세보기 글 정보 가져오기-->
+	<select id="getFreeDetail" parameterType="int" resultType="free">
+		SELECT * FROM FB_VIEW2 WHERE CB_INDEX=#{cb_index}
+	</select>
+	
+	<!-- 자유게시판 상세보기 파일이름 전체 가져오기 -->
+	<select id="freeGetFile" parameterType="int" resultType="String">
+		SELECT f_newName FROM files WHERE cb_index=#{cb_index}
+	</select>
+	
+	<!-- 자유게시판 댓글 입력 -->
+	<insert id="b_FreeComWrite" parameterType="free">
+		INSERT INTO COMMENTS VALUES(SEQ_COMMENTS.NEXTVAL,#{cb_index},#{m_id},#{co_content},sysdate,#{secretChk})
+	</insert>
+	
+	<!-- 댓글 리스트 가져오기 -->
+	<select id="getCommList" parameterType="free" resultType="free">
+		SELECT * FROM COMMENTS WHERE CB_INDEX=#{cb_index} ORDER BY CO_DATE DESC
+	</select>
+	
+	<!-- 댓글 총 갯수 가져오기 -->
+	<select id="commCount" parameterType="int" resultType="int">
+		SELECT COUNT(co_index) FROM comments WHERE cb_index = #{cb_index}
+	</select>
+	
+	
+	<!-- 댓글 가져오기 -->
+	<!-- <select id="getCommList" parameterType="vote" resultType="vote">
+		SELECT * FROM comments WHERE CB_INDEX=#{cb_index} ORDER BY CO_DATE DESC
+	</select> -->
+	
+	
+</mapper>

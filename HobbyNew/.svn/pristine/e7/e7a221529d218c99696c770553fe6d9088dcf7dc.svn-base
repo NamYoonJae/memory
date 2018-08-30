@@ -1,0 +1,23 @@
+<%@ page language="java" contentType="text/html; charset=UTF-8"
+    pageEncoding="UTF-8"%>
+<!DOCTYPE html>
+
+<html>
+	<head>
+		<meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
+		<title>Insert title here</title>
+		<script src="resources/js/jquery-2.1.1.js"></script>
+		<style>
+		#header .links ul li{
+         line-height: 1;
+     	 }
+		</style>
+	</head>
+	<body>
+	<h3>아이디 / 비밀번호 찾기 폼(findIdPw.jsp)</h3>
+	
+	<a href="">아이디 찾기</a>
+	<a href="">비밀번호 찾기</a>
+	
+	</body>
+</html>

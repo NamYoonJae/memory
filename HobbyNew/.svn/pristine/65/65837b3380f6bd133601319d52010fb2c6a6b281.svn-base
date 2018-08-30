@@ -1,0 +1,286 @@
+package icia.mvc.service;
+
+import java.net.StandardSocketOptions;
+import java.sql.Date;
+import java.util.HashMap;
+import java.util.Map;
+
+import javax.servlet.http.HttpServletRequest;
+import javax.servlet.http.HttpSession;
+
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.stereotype.Service;
+import org.springframework.web.servlet.ModelAndView;
+
+import com.google.gson.Gson;
+
+import icia.mvc.bean.Member;
+import icia.mvc.bean.Notice;
+import icia.mvc.dao.INoteDAO;
+import icia.mvc.dao.ImemberDao;
+
+@Service
+public class MemberMM {
+	
+	@Autowired
+	private HttpSession session;
+	@Autowired
+	private ImemberDao mDao;
+	@Autowired
+	
+	private INoteDAO nDao;
+	private HttpServletRequest request;
+	private ModelAndView mav;
+	
+	//아이디 중복 체크
+	public HashMap<String, Integer> mb_checkId(String m_id) {
+		String view=null;
+		System.out.println("NYJ mb_checkId Call");
+		System.out.println("NYJ MemberMM m_id : "+m_id);
+		
+		int idChk=mDao.mb_checkId(m_id);//DB에 아이디 존재하면 1 없으면 0
+		HashMap<String, Integer> idMap=new HashMap<String,Integer>();
+		idMap.put("m_id", idChk);
+		
+		return idMap;
+		
+	}//overlap And
+
+	//로그인
+	public ModelAndView mb_Login(Member mb) {
+		System.out.println(mb);
+		System.out.println("NYJ login call");
+		
+		String view=null;
+		mav=new ModelAndView();
+		
+		
+		
+		
+		if(mDao.mb_Login(mb)==1){
+			System.out.println("=============================");
+			System.out.println("mDao.mb_Login(mb)==1");
+			
+				System.out.println("NYJ 로그인 성공");
+				mb=mDao.getMemberInfo(mb.getM_id());//로그인한 회원 정보
+				String getAddress = mb.getM_address();//주소 값 뽑음
+				
+				String[] address = getAddress.split("_");//주소 _로 분리하여 배열에 담음
+				
+				System.out.println(address[0]+"/"+address[1]);
+				String addr = address[0];
+				String detailAddress = address[1];
+				System.out.println("NYJ MemberMM addr : "+addr);
+				System.out.println("NYJ MemberMM detailAddress : "+detailAddress);
+				mb.setM_addr(addr);
+				mb.setM_detailAddress(detailAddress);
+				System.out.println(mb.getM_addr());
+				System.out.println(mb.getM_detailAddress());
+				
+				/*mav.addObject("sort",mb.getM_sort());*/
+				
+				if(mb.getM_sort()==5){//탈퇴회원이 접속 시
+					mav.addObject("check",5);
+					view="NYJ/loginForm";
+				}else{
+					session.setAttribute("mb",mb);//로그인 유지를 위해 세션에 저장
+					int cnt = nDao.noteCount(mb.getM_id());
+					session.setAttribute("cnt",cnt);
+					
+					view="main";
+				}
+				
+		}else{
+			System.out.println("NYJ 로그인 실패");
+			mav.addObject("check",4);
+			view="NYJ/loginForm";
+		}
+		
+		mav.setViewName(view);
+		return mav;
+	}
+
+	//회원가입
+	public ModelAndView mb_Join(Member mb) {
+		System.out.println("NYJ MemberMM mb_Join Call");
+		mav=new ModelAndView();
+		
+		String view = null;
+		System.out.println("NYJ MemberMM mb M_NAME : "+mb.getM_name());
+		System.out.println("NYJ MemberMM mb M_ID : "+mb.getM_id());
+		System.out.println("NYJ MemberMM mb M_PW : "+mb.getM_pw());
+		System.out.println("NYJ MemberMM mb M_GENDER : "+mb.getM_gender());
+		System.out.println("NYJ MemberMM mb M_PHONE : "+mb.getM_phone());
+		System.out.println("NYJ MemberMM mb M_YEAR : "+mb.getM_year());
+		System.out.println("NYJ MemberMM mb M_MONTH : "+mb.getM_month());
+		System.out.println("NYJ MemberMM mb M_DAY : "+mb.getM_day());
+		System.out.println("NYJ MemberMM mb M_EMAIL : "+mb.getM_email());
+		System.out.println("NYJ MemberMM mb M_ADDRESS : "+mb.getM_addr());
+		System.out.println("NYJ MemberMM mb M_DETAILADDRESS : "+mb.getM_detailAddress());
+		System.out.println("NYJ MemberMM mb ch_check : "+mb.getCh_check());
+		
+		//생일 년월일 이어붙이기
+		String m_birth = mb.getM_year()+"-"+mb.getM_month()+"-"+mb.getM_day();
+		System.out.println("m_birth : "+m_birth);
+		
+		//String 형식을 Date형식으로 변환
+		Date birth=Date.valueOf(m_birth);
+		System.out.println("birth : "+birth);
+		
+		//주소와 상세주소 이어붙이기
+		String address = mb.getM_addr()+"_"+mb.getM_detailAddress();
+		System.out.println("address : "+address);
+		
+		mb.setM_birth(birth);
+		mb.setM_address(address);
+	
+		try {
+			if(mDao.mb_Join(mb)!=0){
+				if(mb.getCh_check()!=null){//관심분야를 체크 안했을 시
+					for(int i=0;i<mb.getCh_check().size();i++){
+					mb.setM_hobby(mb.getCh_check().get(i));
+					mDao.ch_check(mb);
+					}
+				}
+				mDao.p_pointExp(mb);
+				System.out.println("NYJ 회원가입 성공");
+				mav.addObject("check",1);//회원가입 성공시 loginForm에서 메세지 띄우기 위해
+				view="NYJ/loginForm";
+			}else{
+				System.out.println("NYJ 회원가입 실패");
+				mav.addObject("check",2);
+				view="NYJ/loginForm";
+			}
+		} catch (Exception e) {
+			System.out.println("NYJ 회원가입 예외발생");
+			mav.addObject("check",3);
+			view="NYJ/loginForm";
+		}
+		
+		mav.setViewName(view);
+		return mav;
+	}
+
+	//취미아티스트 회원가입
+	public ModelAndView mb_ArtJoin(Member mb) {
+		mav=new ModelAndView();
+		String view = null;
+		
+		System.out.println("NYJ MemberMM mb M_NAME : "+mb.getM_name());
+		System.out.println("NYJ MemberMM mb M_ID : "+mb.getM_id());
+		System.out.println("NYJ MemberMM mb M_PW : "+mb.getM_pw());
+		System.out.println("NYJ MemberMM mb M_GENDER : "+mb.getM_gender());
+		System.out.println("NYJ MemberMM mb M_PHONE : "+mb.getM_phone());
+		System.out.println("NYJ MemberMM mb M_YEAR : "+mb.getM_year());
+		System.out.println("NYJ MemberMM mb M_MONTH : "+mb.getM_month());
+		System.out.println("NYJ MemberMM mb M_DAY : "+mb.getM_day());
+		System.out.println("NYJ MemberMM mb M_EMAIL : "+mb.getM_email());
+		System.out.println("NYJ MemberMM mb M_ADDRESS : "+mb.getM_addr());
+		System.out.println("NYJ MemberMM mb M_DETAILADDRESS : "+mb.getM_detailAddress());
+		System.out.println("NYJ MemberMM mb M_INTRO : "+mb.getM_intro());
+		
+		
+		//생일 년월일 이어붙이기
+		String m_birth = mb.getM_year()+"-"+mb.getM_month()+"-"+mb.getM_day();
+		System.out.println("m_birth : "+m_birth);
+		
+		//String 형식을 Date형식으로 변환
+		Date birth=Date.valueOf(m_birth);
+		System.out.println("birth : "+birth);
+		
+		//주소와 상세주소 이어붙이기
+		String address = mb.getM_addr()+"_"+mb.getM_detailAddress();
+		System.out.println("address : "+address);
+		
+		mb.setM_birth(birth);
+		mb.setM_address(address);
+		
+		if(mDao.mb_ArtJoin(mb)!=0){
+			System.out.println("NYJ 회원가입 성공");
+			mav.addObject("check",1);//회원가입 성공시 loginForm에서 메세지 띄우기 위해
+			view="NYJ/loginForm";
+		}else{
+			System.out.println("NYJ 회원가입 실패");
+			mav.addObject("check",2);
+		}
+		
+		mav.setViewName(view);
+		return mav;
+		
+	}
+
+	//회원 탈퇴
+	public ModelAndView ny_out(Member mb) {
+		System.out.println("NYJ MemberMM ny_out 회원 탈퇴 Call");
+		System.out.println(mb.getM_id());
+		String view = null;
+		
+		if(mDao.mp_MyOut(mb.getM_id())==1){
+			System.out.println("탈퇴 성공");
+			session.invalidate();
+			view="main";
+		}else{
+			System.out.println("탈퇴 실패");
+		}
+		
+		mav.setViewName(view);
+		return mav;
+	}
+	
+	//마이페이지 정보수정
+	public ModelAndView mp_MyInfoChange(Member mb) {
+		String view=null;
+		System.out.println("MemberMM mp_MyInfoChange Call 마이페이지 수정 요청");
+		System.out.println("NYJ MemberMM mb M_NAME : "+mb.getM_name());
+		System.out.println("NYJ MemberMM mb M_EMAIL : "+mb.getM_email());
+		System.out.println("NYJ MemberMM mb M_PHONE : "+mb.getM_phone());
+		System.out.println("NYJ MemberMM mb M_DETAILADDRESS : "+mb.getM_addr());
+		System.out.println("NYJ MemberMM mb M_DETAILADDRESS : "+mb.getM_detailAddress());
+		
+		String address = mb.getM_addr()+"_"+mb.getM_detailAddress();
+		System.out.println("address : "+address);
+
+		mb.setM_address(address);
+		
+		if(mDao.mp_MyInfoChange(mb)==1){
+			mb=mDao.getMemberInfo(mb.getM_id());
+			System.out.println("수정 성공");
+			/*session.invalidate();*/
+			String getAddress = mb.getM_address();//주소 값 뽑음
+			
+			String[] splitAddress = getAddress.split("_");//주소 _로 분리하여 배열에 담음
+			
+			System.out.println(splitAddress[0]+"/"+splitAddress[1]);
+			String addr = splitAddress[0];
+			String detailAddress = splitAddress[1];
+			System.out.println("NYJ MemberMM addr : "+addr);
+			System.out.println("NYJ MemberMM detailAddress : "+detailAddress);
+			mb.setM_addr(addr);
+			mb.setM_detailAddress(detailAddress);
+			
+			session.setAttribute("mb",mb);
+			view="myPage";
+		}else{
+			System.out.println("수정 실패");
+			view="myPage";
+		}
+		
+		return mav;
+	}
+
+	//비밀번호 변경
+	public ModelAndView mp_ChangePw(Member mb) {
+		System.out.println("NYJ MemberMM mp_ChangePw 비밀번호 변경 : "+mb.getM_id());
+		System.out.println("NYJ MemberMM mp_ChangePw 비밀번호 변경 : "+mb.getM_pw());
+		
+		if(mDao.mp_ChangePw(mb)==1){
+			System.out.println("비밀번호 변경 성공");
+		}else{
+			System.out.println("비밀번호 변경 실패");
+		}
+		
+		return mav;
+	}
+	
+	
+}//MemberMM And

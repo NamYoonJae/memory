@@ -1,0 +1,289 @@
+<%@ page language="java" contentType="text/html; charset=UTF-8"
+    pageEncoding="UTF-8"%>
+<%@ taglib uri="http://java.sun.com/jsp/jstl/core" prefix="c"%>
+<html>
+	<head>
+		<meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
+		<script src="resources/assets/js/jquery.min.js"></script>
+		<title>소수의 취향</title>
+	</head>
+	<style>
+		body{
+			font-family: 'Nanum Square';
+			font-size:18px;
+		}
+		
+		#header .links ul li{
+			line-height: 1;
+		}
+		
+		#eb_blank{
+			width: 20px;
+			height: 120px;
+			display: hidden;
+		}
+		
+		#writes{
+			position: absolute;
+		    top: 20%;
+		    left: 77%;
+		}
+		
+		.eb_btn{
+			/* position: relative;
+			top:28%;
+			left:47%; */
+			width: 150px;
+			border-radius: 7px;
+		    line-height: 3px;
+		}
+		
+		.eb_btn:hover{
+			/* position: relative;
+			top:28%;
+			left:47%; */
+			width: 150px;
+			border-radius: 7px;
+			color: #ff9a2e;
+			border-color: #ff9a2e;
+		    line-height: 3px;
+		}
+		
+		#lock_g{
+         	position: relative;
+         	float: left;
+         	width: 20px;
+         	height: auto;
+       	    margin: 0px 0px 0px 20px;
+         }
+         
+         #allComm img {
+		    width: 36px;
+	        margin: 0px 10px 0px 0px;
+		}
+		
+		#allComm p{
+		    margin: 0 0 1.5em 0;
+		}
+		
+		</style>
+	</head>
+	<body>
+	
+	<jsp:include page="../loginBox.jsp"></jsp:include>
+		
+		<!-- 여백 -->
+		<div id="eb_blank"></div>
+	
+		<div id = "second_subject" align="center">
+			<h1>자유게시판</h1>
+		</div>
+		
+	<h3>자유게시판 상세보기(freeDetail.jsp)</h3>
+	
+	<form id="freeDetail" name="freeDetail" action="b_FreeChange" method="POST" enctype="multipart/form-data">
+		<input type="text" id="cn_index" name="cn_index" value="${freeCom.cn_name}" readonly>
+		
+		<input type="button" onclick="change()" value="수정">
+		<input type="button" onclick="del()" value="삭제">
+		
+		<table>
+		
+			<tr>
+				<td>${freeCom.det_subject}</td>
+				<td></td>
+				<td></td>
+			</tr>
+			
+			<tr>
+				<td>조회수 : ${freeCom.cb_click}</td>
+			</tr>
+			
+
+			
+			<tr>
+				<td>
+					<c:forEach items="${freeCom.fList}" var="list">
+							<img src="${realPath}${list}" style="width:35%;height:auto;"/>
+							<br/><br/>
+					</c:forEach>
+				<br/>
+				${freeCom.cb_content}</td>
+			</tr>
+			
+		</table>
+		
+		
+		<br/>
+		<br/>
+		
+		<!-- ===댓글=== -->
+		<table>
+		
+			<tr>
+				<td>
+					<textarea id="commText" name="co_content" rows="3" cols="30" placeholder="* 댓글은 1000자까지 입력하실 수 있습니다." style="resize:none;"onKeyUp="checkLength(this);" onKeyDown="checkLength(this);"></textarea>
+					<img src="resources/assets/img/vote/lock_gray.png" id="lock_g" class="lock"/><br/> &nbsp;&nbsp;
+					<input type="hidden" value="0" id="secretChk"/> <!-- 비밀글 체크(0/1) -->
+					<input type="button" onclick="b_FreeComWrite(${freeCom.cb_index})" value="등록" id="commentAjax"/><!-- 댓글 ajax 호출 -->
+				</td>
+				
+			</tr>
+			
+			<tr>
+				<td>전체 댓글 ${commCount}</td>
+			</tr>
+			
+			
+			<tr>
+				<td>작성자</td>
+				<td>내용</td>
+				<td>작성시간</td>
+				<td>신고</td>
+				<td>삭제</td>
+			</tr>
+			
+		</table>
+		
+		<c:forEach items="${commList}" var="comList">
+				
+					<!-- 비밀 댓글이 아닐 경우 -->
+					<c:if test="${comList.secretChk == 0}">
+						${comList.m_id}&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;${comList.co_date}<br/><br/>
+						
+						
+						<c:if test="${comList.m_id == sessionScope.mb.m_id || sessionScope.mb.m_sort == 0}">
+							<input id="comDelete" type="button" value="삭제" onclick="comDelete(${comList.co_index}, ${comList.cb_index})"/>
+						</c:if>
+						
+						
+						<c:if test="${comList.m_id != sessionScope.mb.m_id}">
+							<input id='comReport' type='button' value='신고'  onclick="banWrite('${comList.cb_index}','${comList.m_id}','0')"/>
+						</c:if>
+						
+						${comList.co_content}&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<br/>
+						<br/><div id="eb_separate"></div><br/> <!-- 구분선 -->
+					</c:if>
+					
+					<!-- 비밀 댓글일 경우 -->
+					<c:if test="${comList.secretChk == 1}">
+						
+						<c:if test="${comList.m_id != sessionScope.mb.m_id && sessionScope.mb.m_sort != 0}">
+							<img src="resources/assets/img/vote/lock_gray.png" id="lockCom" class="lock"/>
+							<p>작성자와 운영자만 볼 수 있는 비밀 댓글입니다.</p>
+							<div id='eb_separate'></div><br/>
+						</c:if>
+					
+						<c:if test="${comList.m_id == sessionScope.mb.m_id || sessionScope.mb.m_sort == 0 || voteCom.m_id == sessionScope.mb.m_id}">
+							${comList.m_id}&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;${comList.co_date}<br/><br/>
+							
+							<c:if test="${comList.m_id == sessionScope.mb.m_id || sessionScope.mb.m_sort == 0}">
+								<input id="comDelete" type="button" value="삭제" onclick="comDelete(${comList.co_index}, ${comList.cb_index})"/>
+							</c:if>
+							
+							<c:if test="${comList.m_id != sessionScope.mb.m_id}">
+								<input id='comReport' type='button' value='신고'  onclick="banWrite('${comList.cb_index}','${comList.m_id}','0')"/>
+							</c:if>
+										
+							${comList.co_content}&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<br/>
+							<br/><div id="eb_separate"></div><br/> <!-- 구분선 -->
+							
+						</c:if>
+					</c:if>
+						
+				</c:forEach>
+		
+			
+		
+	</form>
+	
+	
+	
+	</body>
+	<script>
+	
+	//댓글 작성 란 글자 수 제한 (1000자)
+	function checkLength(comment) {
+	    if (comment.value.length > 1000 ) {
+	        comment.blur();
+	        comment.value = comment.value.substring(0, 1000);
+	        comment.focus();
+	        return false;
+	    }
+	};
+	
+	//댓글 1000자 입력 제한
+	function checkLength(comment) {
+	    if (comment.value.length > 1000 ) {
+	        comment.blur();
+	        comment.value = comment.value.substring(0, 1000);
+	        comment.focus();
+	        return false;
+	    }
+	}
+	
+	// 비밀글 체크
+	var check = 1;
+	var secretChk = 0;
+	
+	$("#lock_g").click(function(){
+		if(check == 1){
+			$("#lock_g").attr("src", "resources/assets/img/vote/lock_orange.png");
+			check ++;
+			$("#secretChk").val(1);
+		}else if(check > 1){
+			$("#lock_g").attr("src", "resources/assets/img/vote/lock_gray.png");
+			check = 1;
+			$("#secretChk").val(0);
+		}else{
+			check = 1;
+			$("#secretChk").val(0);
+		}
+	});
+	
+	//댓글 입력시 
+	function b_FreeComWrite(cb_index){
+		console.log("비밀글 체크 : "+$("#secretChk").val());
+		
+		var m_id = "${sessionScope.mb.m_id}";
+		var sessionSort = "${sessionScope.mb.m_sort}";
+		var sessionId = "${sessionScope.mb.m_id}";
+		
+		console.log("회원 구분 : "+sessionSort);
+		
+		$.ajax({
+			type:"post",
+			url:"b_FreeComWrite",
+			data:{
+				cb_index : cb_index,
+				m_id : m_id,
+				co_content : $("#commText").val(),
+				secretChk : $("#secretChk").val()
+			},
+			dataType:"JSON",
+			success:function(data){
+				console.log(data.commList);
+				
+				listPrint(data.commList);
+				
+			},error:function(){
+				console.log(eroor);
+			}
+			
+			
+		})// ajax End
+		
+	} // 댓글 입력 commentAjax End
+	
+	
+	//댓글 입력 후 댓글 리스트 출력
+	function listPrint(commList){
+		console.log("==============")
+		console.log(commList);
+		
+		
+	}
+	
+	
+	</script>
+</html>

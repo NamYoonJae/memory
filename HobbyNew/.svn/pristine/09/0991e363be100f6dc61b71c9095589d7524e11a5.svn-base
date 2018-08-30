@@ -1,0 +1,115 @@
+package icia.mvc.bean;
+
+import java.sql.Date;
+
+import org.apache.ibatis.type.Alias;
+
+@Alias("class")
+public class Class {
+	private int c_index;
+	private int cn_index;
+	private String m_id;
+	private String c_subject;
+	private String c_simpleContent;
+	private int c_minPerson;
+	private int c_maxPerson;
+	private Date c_startDay;
+	private Date c_endDay;
+	private String c_address;
+	private int c_price;
+	private String c_content;
+	private String c_refund;
+	private String c_status;
+	private Date c_date;
+	
+	public int getC_index() {
+		return c_index;
+	}
+	public void setC_index(int c_index) {
+		this.c_index = c_index;
+	}
+	public int getCn_index() {
+		return cn_index;
+	}
+	public void setCn_index(int cn_index) {
+		this.cn_index = cn_index;
+	}
+	public String getM_id() {
+		return m_id;
+	}
+	public void setM_id(String m_id) {
+		this.m_id = m_id;
+	}
+	public String getC_subject() {
+		return c_subject;
+	}
+	public void setC_subject(String c_subject) {
+		this.c_subject = c_subject;
+	}
+	public String getC_simpleContent() {
+		return c_simpleContent;
+	}
+	public void setC_simpleContent(String c_simpleContent) {
+		this.c_simpleContent = c_simpleContent;
+	}
+	public int getC_minPerson() {
+		return c_minPerson;
+	}
+	public void setC_minPerson(int c_minPerson) {
+		this.c_minPerson = c_minPerson;
+	}
+	public int getC_maxPerson() {
+		return c_maxPerson;
+	}
+	public void setC_maxPerson(int c_maxPerson) {
+		this.c_maxPerson = c_maxPerson;
+	}
+	public Date getC_startDay() {
+		return c_startDay;
+	}
+	public void setC_startDay(Date c_startDay) {
+		this.c_startDay = c_startDay;
+	}
+	public Date getC_endDay() {
+		return c_endDay;
+	}
+	public void setC_endDay(Date c_endDay) {
+		this.c_endDay = c_endDay;
+	}
+	public String getC_address() {
+		return c_address;
+	}
+	public void setC_address(String c_address) {
+		this.c_address = c_address;
+	}
+	public int getC_price() {
+		return c_price;
+	}
+	public void setC_price(int c_price) {
+		this.c_price = c_price;
+	}
+	public String getC_content() {
+		return c_content;
+	}
+	public void setC_content(String c_content) {
+		this.c_content = c_content;
+	}
+	public String getC_refund() {
+		return c_refund;
+	}
+	public void setC_refund(String c_refund) {
+		this.c_refund = c_refund;
+	}
+	public String getC_status() {
+		return c_status;
+	}
+	public void setC_status(String c_status) {
+		this.c_status = c_status;
+	}
+	public Date getC_date() {
+		return c_date;
+	}
+	public void setC_date(Date c_date) {
+		this.c_date = c_date;
+	}	
+}

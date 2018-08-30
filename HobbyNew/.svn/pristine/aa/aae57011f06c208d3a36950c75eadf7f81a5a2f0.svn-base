@@ -1,0 +1,17 @@
+package icia.mvc.service;
+
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.stereotype.Service;
+import org.springframework.web.servlet.ModelAndView;
+
+import icia.mvc.dao.IclassDAO;
+
+@Service
+public class ClassMM {
+
+	/*@Autowired
+	private IclassDAO cDao;*/
+	private ModelAndView mav;
+	
+	
+}

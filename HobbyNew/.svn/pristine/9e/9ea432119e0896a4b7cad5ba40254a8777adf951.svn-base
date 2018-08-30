@@ -1,0 +1,430 @@
+package icia.mvc.service;
+
+import java.io.IOException;
+import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
+
+import javax.servlet.http.HttpServletRequest;
+import javax.servlet.http.HttpSession;
+
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.stereotype.Service;
+import org.springframework.web.servlet.ModelAndView;
+
+import icia.mvc.bean.Member;
+import icia.mvc.bean.Note;
+import icia.mvc.bean.Report;
+import icia.mvc.dao.INoteDAO;
+
+
+
+
+@Service
+public class NoteMM {
+
+
+
+	@Autowired
+	private INoteDAO nDao;
+	@Autowired
+	private HttpSession session;
+	@Autowired
+	private HttpServletRequest request;
+
+	private ModelAndView mav;
+	private String view;
+	private String jsonStr;
+
+	public ModelAndView nt_SendNoteList(String id) {
+		mav = new ModelAndView();
+		ArrayList<Note> nlist_0 = new ArrayList<>();
+		ArrayList<Note> nlist_1 = new ArrayList<>();
+		// 세션아이디 
+		nlist_0 = nDao.getNoteList_0(id);
+		nlist_1 = nDao.getNoteList_1(id);
+
+		//List<Note> nlist = null;
+		//int pageNum = (request.getParameter("pageNum") != null) ? Integer.parseInt(request.getParameter("pageNum")):1;
+		//System.out.println("pageNum : "+pageNum);
+		//blist = bDao.getBoardList(pageNum);
+		//String nlistHtml = makeHtmlNlist(nlist);
+		//mav.addObject("nlist",nlistHtml);
+		//mav.addObject("paging", getPaging(pageNum));
+		System.out.println("nlist");
+
+		String nlist1 = makeHtmlNlist_1(nlist_1);
+		String nlist0 = makeHtmlNlist_0(nlist_0);
+
+		System.out.println(nlist_0.size());
+		System.out.println(nlist_1.size());
+
+		// 까운트해서 읽지 않는 수 표시 // 상태가 0인 상태의 컬럼뽑기 이게 바로 읽지 않는 쪽지!
+		int cnt = nDao.noteCount(id);
+		System.out.println("count : " + cnt);
+		session.setAttribute("cnt",cnt);
+		
+		// 자동 메시지 보내기
+		mav.addObject("nlist0", nlist0); // 
+		mav.addObject("nlist1", nlist1); // 
+		
+		view = "note/noteList";
+		mav.setViewName(view);
+		return mav;
+	}
+
+	private String makeHtmlNlist_0(List<Note> nlist) { // 보낸 쪽지
+
+		StringBuilder tag = new StringBuilder();
+		tag.append("<form name='frm' action='mailDelete0' method='post'>");
+		
+		tag.append("<table border='1' style='border-collapse: collapse;'>\n");
+		tag.append("<tr><td colspan = '6'>보낸 쪽지</td></tr>\n");
+		tag.append("			<tr>\n");
+		tag.append("	<th style='padding: 14px;'><input id='allCheck0' type='checkbox' onclick='allChk0(this);'/></th>\n");
+		tag.append("		<th style='padding: 14px;'>받은 사람</th>\n");
+		tag.append("		<th style='padding: 14px;'>제목</th>\n");
+		tag.append("		<th style='padding: 14px;'>내용</th>\n");
+		tag.append("		<th style='padding: 14px;'>보낸 날짜</th>\n");
+		//tag.append("					<th>차단</th>\n");
+		tag.append("			</tr>\n\n");
+		
+		if(nlist.size()==0){
+			System.out.println("아무 쪽지도 안옴");
+			tag.append("<tr><td colspan = '6'>보낸 쪽지가 없습니다.</tr>\n");
+			tag.append("		 </table>\n");
+			tag.append("         <button type='submit' name='btn_sort' value='1' class='eb_btn'/>삭제</button>\n");
+			tag.append("         <button type='submit' name='btn_sort' value='2' class='eb_btn'/>차단</button>\n");
+			tag.append("</form>");
+			
+			return tag.toString();
+			
+		}
+		
+		for(int i=0; i<nlist.size(); i++){		
+
+			tag.append("	<tr align='center'>\n");
+			tag.append("	               <td>\n");
+			tag.append("<input type='checkbox' name='RowCheck0' value='"+nlist.get(i).getN_index()+"'/>\n");
+			tag.append("                   </td>\n");
+			tag.append("					<td>"+nlist.get(i).getM_id2()+"</td>\n"); // 蹂대궦 �궗�엺�뱾
+			tag.append("					<td>"+nlist.get(i).getN_subject()+"</td>\n");
+			// tt22 : 내용에 ...(말 줄임) 표시를 하기 위해 처리된 내용 
+			int len =nlist.get(i).getN_content().length();
+			if(len >= 20) {
+				//tag.append("<td><a href='mailDetail?index="+nlist.get(i).getN_index()+"'>"+nlist.get(i).getN_content().substring(0, 20)+"...</a></td>\n");
+				tag.append("<td><a href='#' onclick='countRead("+nlist.get(i).getN_index()+")'>"+nlist.get(i).getN_content().substring(0, 20)+"...</a></td>\n");
+
+			}else {
+				tag.append("<td><a href='#' onclick='countRead("+nlist.get(i).getN_index()+")'>"+nlist.get(i).getN_content()+"</a></td>\n");
+			}
+
+			// tt22
+			tag.append("<td>"+nlist.get(i).getN_date()+"</td>\n");
+			//tag.append("<td>차단</td>\n");
+
+			tag.append("			</tr>\n\n");
+
+
+		}
+
+		tag.append("		 </table>\n");
+		tag.append("         <button type='submit' name='btn_sort' value='1' class='eb_btn'/>삭제</button>\n");
+		tag.append("         <button type='submit' name='btn_sort' value='2' class='eb_btn'/>차단</button>\n");
+		tag.append("</form>");
+
+		return tag.toString();
+	}
+
+
+	private String makeHtmlNlist_1(List<Note> nlist) { // 받은 쪽지
+
+		
+		StringBuilder tag = new StringBuilder();
+		tag.append("<form name='frm' action='mailDelete1' method='post' onsubmit='return check(this)'>");  //onsubmit=return 'check()'>
+		tag.append("<table border='1' style='border-collapse: collapse;' >\n");
+
+
+		tag.append("	<th style='padding: 14px;'><input id='allCheck1' type='checkbox' onclick='allChk1(this);'/></th>\n");
+		tag.append("					<th style='padding: 14px;'>보낸 사람</th>\n");   
+		tag.append("					<th style='padding: 14px;'>제목</th>\n");
+		tag.append("					<th style='padding: 14px;'>내용</th>\n");
+		tag.append("					<th style='padding: 14px;'>받은 날짜</th>\n");
+		tag.append("					<th style='padding: 14px;'>차단</th>");
+
+		tag.append("			</tr>\n\n");
+		
+		
+		if(nlist.size()==0){
+			System.out.println("아무 쪽지도 안옴");
+			tag.append("<tr><td colspan = '6'>받은 쪽지가 없습니다.</tr>\n");
+			tag.append("		 </table>\n");
+			tag.append("         <button type='submit' name='btn_sort' value='1' class='eb_btn'/>삭제</button>\n");
+			tag.append("         <button type='submit' name='btn_sort' value='2' class='eb_btn'/>차단</button>\n");
+			tag.append("</form>");
+			
+			return tag.toString();
+		}
+		
+
+		for(int i=0; i<nlist.size(); i++){
+			if(nlist.get(i).getN_state() != 3){
+			if(nlist.get(i).getN_state() == 0){
+				tag.append("		<tr align='center'>\n");
+			}else{
+				tag.append("	<tr align='center'  style='color:#A4A4A4'>\n");	
+			}
+			tag.append("	               <td>\n");
+			tag.append("<input type='checkbox' name='RowCheck1' value='"+nlist.get(i).getN_index()+"'/>\n");
+			tag.append("                   </td>\n");
+			tag.append("					<td>"+nlist.get(i).getM_id()+"</td>\n");
+			tag.append("					<td>"+nlist.get(i).getN_subject()+"</td>\n");
+			// tt22 : 내용에 ...(말 줄임) 표시를 하기 위해 처리된 내용 
+			int len =nlist.get(i).getN_content().length();
+
+			if(len >= 20) {
+				tag.append("<td><a href='#' onclick='countRead("+nlist.get(i).getN_index()+")'>"+nlist.get(i).getN_content().substring(0, 20)+"...</a></td>\n");
+
+			}else {
+				tag.append("<td><a href='#' onclick='countRead("+nlist.get(i).getN_index()+")'>"+nlist.get(i).getN_content()+"</a></td>\n");
+			}
+
+			String a = '"'+nlist.get(i).getM_id2()+'"';
+			String b = '"'+nlist.get(i).getM_id()+'"';
+			// tt22
+			tag.append("<td>"+nlist.get(i).getN_date()+"</td>\n");
+			//tag.append("<td><a href='noteBlock?id_1="+nlist.get(i).getM_id2()+"&id_2="+nlist.get(i).getM_id()+"'>차단</a></td>\n");
+			
+			tag.append("<td><a href='#' onclick='confirmBan("+a+","+b+")'>차단</a></td>\n");
+	
+					//,"+nlist.get(i).getM_id()+ "
+			
+			tag.append("</tr>\n\n");
+			}
+		}
+
+		tag.append("		</table>\n");
+		tag.append("         <button type='submit' name='btn_sort' value='1' onclick='asd(1)' class='eb_btn'>삭제</button>\n");
+		tag.append("         <button type='submit' name='btn_sort' value='2' onclick='asd(2)' class='eb_btn'>신고</button>\n");
+		tag.append("</form>");
+
+		
+		return tag.toString();
+	}
+
+
+
+
+	public ModelAndView nt_NoteWrite() {
+		//int n_index;
+		Note nt = new Note();
+		
+		String m_id = request.getParameter("m_id");
+		String m_id2 = request.getParameter("m_id2");
+		String n_subject = request.getParameter("n_subject");
+		String n_content = request.getParameter("n_content");
+		
+		int checkId = nDao.checkId(m_id2);
+		
+		if(checkId==1){
+		int n_state = 0;
+		int n_sort = 0 ;
+		nt.setM_id(m_id);
+		nt.setM_id2(m_id2);
+		nt.setN_content(n_content);
+		nt.setN_subject(n_subject);
+		nt.setN_sort(n_sort);
+		nt.setN_state(n_state);
+
+		System.out.println(m_id +" "+  m_id2 +" " + n_subject +" " + n_content);
+		System.out.println(nt);
+		System.out.println(nt.getN_content());
+
+		if(nDao.noteInsert(nt) == 1){
+			System.out.println("성공");
+			String text = popclose();
+			mav.addObject("text" , text);
+			mav.setViewName("note/mailWriteForm");
+		}
+		
+		}else{
+			System.out.println("아이디 체크 어럴트");
+			String checkIdAlert = checkId();
+			mav.addObject("text" , checkIdAlert);
+			mav.setViewName("note/mailWriteForm");
+		}
+		//view = "note/noteList";
+		//mav.setViewName(view);
+
+		return mav;
+	}
+	
+	public String popclose(){
+		StringBuilder tag = new StringBuilder();
+		
+		//tag.append("<script>\n");   
+		tag.append("\n");
+		tag.append(" $(document).ready( function() {\n");
+		tag.append("window.opener.top.location.href='noteList';\n");
+		tag.append("window.opener.top.location.reload();\n");
+		tag.append(" self.close()  \n");   
+		tag.append("});\n");
+		//tag.append("</script>\n");
+		
+		return tag.toString();
+	}
+	
+	public String checkId(){
+		StringBuilder tag = new StringBuilder();
+	
+		tag.append("\n");
+		tag.append(" $(document).ready( function() {\n");
+		tag.append(" alert('없는 아이디 입니다.')  \n");   
+		tag.append("});\n");
+		
+		return tag.toString();
+	}
+
+	public int mailDelete(int index) {			
+		System.out.println("mailDelete"+index);
+
+		nDao.mailDelete(index);
+
+		return 0;
+	}
+
+	public int mailReport(int index) {
+		System.out.println("mailBan"+index);
+		int suc = 0;
+		suc = nDao.mailReport(index);
+		return 0;
+	}
+
+
+	public int noteBlock(String id_1, String id_2) {
+		System.out.println("noteBlock"+id_1 + id_2);
+
+		// 1 요청자 2받은 사람
+		HashMap<String, Object> setBlock = new HashMap<String, Object>();
+		setBlock.put("M_ID", id_1);
+		setBlock.put("M_ID2", id_2);
+
+		int suc = 0;
+		suc = nDao.noteBlock(setBlock);
+		System.out.println(suc);
+		mav.setViewName("note/noteList");
+		return 0;
+	}
+
+	public ModelAndView nt_NoteDetail(int index) {
+
+		List<Note> nDetail = null;
+		System.out.println("index  :  "+index);
+		// detail
+		nDetail = nDao.noteDetail(index);
+		System.out.println("size : " +nDetail);
+		// 읽음 상태 바꾸기 // 상세보기를 클릭 하면 상태 1로 변경
+		int a = 0;
+		a = nDao.noteState(index);			
+		System.out.println("상태변환 값" + a);
+		mav.addObject("nDetail", nDetail);
+		mav.setViewName("note/noteDetail");
+		return mav;
+	}
+
+	public void noteAuto(String id){
+		List<String> deadSubject = null;
+		HashMap<String, String> noteAuto = null;
+
+		int ch = 0;
+		ch = nDao.noteCheck(id);
+
+		if(ch==0){
+			
+			deadSubject = nDao.noteAuto(id);
+			System.out.println("size : " + deadSubject.size());
+	
+			if(deadSubject.size()!=0){
+			for(int i=0; i<deadSubject.size(); i++){
+
+				System.out.println(deadSubject.get(i));	
+
+				String n_content = "관심 클래스로 등록한 "+ deadSubject.get(i)+"의 마감 기한이 하루 남았습니다.";
+
+				int n_state = 0;
+				int n_sort = 0 ;
+				Note nt = new Note();
+				nt.setM_id("admin");
+				nt.setM_id2(id);
+				nt.setN_content(n_content);
+				nt.setN_subject("[알림]마감 기한 임박");
+				nt.setN_sort(n_sort);
+				nt.setN_state(n_state);
+				int s = 0;
+				if(nDao.noteInsert(nt) == 1){
+					s = 1;
+					System.out.println("성공");
+				}
+			}
+		}
+	}
+
+	
+	}
+
+
+	public List<Note> m_id2Ban(int index) { // ban 대상자 이름 불러오기
+		List<Note> note = new ArrayList<>();
+		note = nDao.noteM_id2(index);
+		
+		return note;
+	}
+
+	public ModelAndView banInsert(int sort,int index, String m_id2) {
+		
+		mav = new ModelAndView();
+		Member mb = (Member) session.getAttribute("mb");
+		String id = mb.getM_id();
+		System.out.println("id ="+id);
+		String b_selected = request.getParameter("b_selected");
+		String b_text = request.getParameter("b_text");
+		//String c_index = request.getParameter("c_index");
+		int c_index = Integer.parseInt(request.getParameter("c_index"));
+		
+		
+		
+		System.out.println(m_id2 + b_selected + b_text + sort + index);
+		
+		Report rt = new Report();
+	
+		//rt.setRp_num(rp_num);
+		rt.setM_id(id);
+		rt.setM_id2(m_id2);
+		rt.setRp_sort(sort);
+		rt.setRp_reason(b_selected);
+		rt.setRp_content(b_text);
+		rt.setRp_index(index);
+		//rt.setRp_date(rp_date);
+
+		nDao.banInsert(rt); 
+		
+		
+		// 분류
+		if(sort==4){ // note로 이동
+			mav.setViewName("redirect:/noteList");
+		}else if(sort==0){ // 투표 페이지
+			mav.setViewName("redirect:/voteDetail?cb_index="+index);
+		}else if(sort==3){ // 포토 페이지
+			mav.setViewName("redirect:/photoGallery_list?cb_index="+index);
+		}else if(sort==5){ // 포토 페이지
+			mav.setViewName("redirect:/classDetail_contents?c_index="+c_index);
+		}
+		
+		return mav;
+	}
+	
+}
+
+
+

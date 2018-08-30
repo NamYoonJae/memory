@@ -1,0 +1,13 @@
+package icia.mvc.dao;
+
+import java.util.List;
+import java.util.Map;
+
+import icia.mvc.bean.Question;
+import icia.mvc.bean.Class;
+
+public interface SurvayDAO {
+
+	List<Class> classList(String cn);
+	
+}

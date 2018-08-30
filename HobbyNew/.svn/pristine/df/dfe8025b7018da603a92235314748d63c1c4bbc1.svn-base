@@ -1,0 +1,132 @@
+<%@ page language="java" contentType="text/html; charset=UTF-8"
+    pageEncoding="UTF-8"%>
+<%@ taglib uri="http://java.sun.com/jsp/jstl/core" prefix="c"%>
+<html>
+	<head>
+		<meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
+		<script src="resources/assets/js/jquery.min.js"></script>
+		<title>소수의 취향</title>
+	</head>
+	<style>
+		body{
+			font-family: 'Nanum Square';
+			font-size:18px;
+		}
+		
+		#header .links ul li{
+			line-height: 1;
+		}
+		
+		#eb_blank{
+			width: 20px;
+			height: 120px;
+			display: hidden;
+		}
+		
+		.lefts{
+		    width: 110px;
+		    float: left;
+		    margin: 5px 10px 0px 0px;
+		}
+		
+		.rights{
+			width: 110px;
+		    float: right;
+		    margin: 5px 10px 0px 0px;
+		}
+		</style>
+	</head>
+	<body>
+		<jsp:include page="../loginBox.jsp"></jsp:include>
+		
+		<!-- 여백 -->
+		<div id="eb_blank"></div>
+	
+		<div id = "second_subject" align="center">
+			<h1>자유게시판</h1>
+			<p>이야기를 나누는 공간</p>
+		</div>
+		<div id="eb_blank"></div>
+	
+		<input type="button" class="rights" onclick="freeWrite()" value="글쓰기">
+		<select class="lefts">
+			<option value="10">전체</option>
+			<option value="0">글 제목</option>
+			<option value="1">글 내용</option>
+		</select>
+	
+	<select class="lefts">
+		<option value="10">전체</option>
+		<option value="0">도서</option>
+		<option value="1">영화</option>
+		<option value="2">음악</option>
+		<option value="3">공예</option>
+		<option value="4">사진</option>
+		<option value="5">운동</option>
+		<option value="6">기타</option>
+	</select>
+	
+	<input type="text" id="find" class="lefts" style="width: 25%;" name="find" placeholder="검색 내용">
+	<input type="button" class="lefts" id="clickFind" name="clickFind" value="검색">
+	<br/><br/>
+	
+	<!-- ============================================ -->
+	<div id="freeListTableDiv">
+	
+		<table>
+		
+			<tr>
+				<th>분류</th>
+				<th>글 제목</th>
+				<th>작성자</th>
+				<th>작성일</th>
+			</tr>
+			<%-- ${flist} --%>
+			
+			<c:forEach items="${flist}" var="result">
+				<tr>
+				
+					<!-- <td>음악,영화 등등..</td> -->
+					<td>
+						<c:choose>
+							<c:when test="${result.cn_name eq '도서'}">도서</c:when>
+							<c:when test="${result.cn_name eq '영화'}">영화</c:when>
+							<c:when test="${result.cn_name eq '음악'}">음악</c:when>
+							<c:when test="${result.cn_name eq '공예'}">공예</c:when>
+							<c:when test="${result.cn_name eq '사진'}">사진</c:when>
+							<c:when test="${result.cn_name eq '운동'}">운동</c:when>
+							<c:when test="${result.cn_name eq '기타'}">기타</c:when>
+							<c:otherwise>기타</c:otherwise>
+						</c:choose>
+					</td>
+					
+					<td><a href="./freeDetail?cb_index=${result.cb_index}">${result.cb_subject}</a></td>
+					<td>${result.m_id}</td>
+					<td>${result.cb_date}</td>
+				</tr>
+			</c:forEach>
+			
+		</table>
+	
+	</div>
+	<!-- ============================================ -->
+	
+	
+	</body>
+	<script>
+	//자유게시판 글쓰기 버튼 클릭 시
+	function freeWrite(){
+		location.href="freeWrite";
+	}
+	
+	
+	//글 작성 & 수정 & 삭제 alert
+	var msg = "${param.msg}";
+	if(msg!=""){
+		alert(msg);
+		location.href="freeList"
+	}
+	
+	
+	</script>
+</html>

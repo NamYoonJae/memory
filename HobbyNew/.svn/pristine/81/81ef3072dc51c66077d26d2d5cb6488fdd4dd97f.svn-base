@@ -1,0 +1,285 @@
+package icia.mvc.service;
+
+import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.List;
+
+import javax.servlet.http.HttpServletRequest;
+import javax.servlet.http.HttpSession;
+
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.stereotype.Service;
+import org.springframework.web.servlet.ModelAndView;
+
+import icia.mvc.bean.Note;
+import icia.mvc.dao.INoteDAO;
+
+
+
+@Service
+public class NoteMM {
+	
+
+	
+	@Autowired
+	private INoteDAO nDao;
+	@Autowired
+	private HttpSession session;
+	@Autowired
+	private HttpServletRequest request;
+	
+	private ModelAndView mav;
+	private String view;
+	private String jsonStr;
+
+		public ModelAndView nt_SendNoteList(String id) {
+			mav = new ModelAndView();
+			ArrayList<Note> nlist_0 = new ArrayList<>();
+			ArrayList<Note> nlist_1 = new ArrayList<>();
+			// 세션아이디 
+			
+			
+			nlist_0 = nDao.getNoteList_0(id);
+			nlist_1 = nDao.getNoteList_1(id);
+			
+			
+			//List<Note> nlist = null;
+			//int pageNum = (request.getParameter("pageNum") != null) ? Integer.parseInt(request.getParameter("pageNum")):1;
+			//System.out.println("pageNum : "+pageNum);
+			//blist = bDao.getBoardList(pageNum);
+		    //String nlistHtml = makeHtmlNlist(nlist);
+			//mav.addObject("nlist",nlistHtml);
+			//mav.addObject("paging", getPaging(pageNum));
+		
+			
+				System.out.println("nlist");
+		
+				String nlist1 = makeHtmlNlist_1(nlist_1);
+				String nlist0 = makeHtmlNlist_0(nlist_0);
+				
+				System.out.println(nlist_0.size());
+				System.out.println(nlist_1.size());
+			
+				// 까운트해서 읽지 않는 수 표시 // 상태가 0인 상태의 컬럼뽑기 이게 바로 읽지 않는 쪽지!
+				int cnt = nDao.noteCount(id);
+				System.out.println("count : " + cnt);
+
+				mav.addObject("nlist0", nlist0); // 
+				mav.addObject("nlist1", nlist1); // 
+
+				mav.addObject("cnt", cnt);	
+
+			
+			view = "note/noteList";
+			mav.setViewName(view);
+			return mav;
+		}
+			
+		
+		
+		private String makeHtmlNlist_0(List<Note> nlist) { // 諛쏆� 履쎌�
+		
+			
+			StringBuilder tag = new StringBuilder();
+			tag.append("<form name='frm' action='mailDelete0' method='post'>");
+			tag.append("<table border='1' style='border-collapse: collapse;'>\n");
+			tag.append("			<tr>\n");
+			tag.append("	<th><input id='allCheck0' type='checkbox' onclick='allChk0(this);'/></th>\n");
+			tag.append("					<th>받은 사람</th>\n");
+			tag.append("					<th>제목</th>\n");
+			tag.append("					<th>내용</th>\n");
+			tag.append("					<th>보낸 날짜</th>\n");
+			tag.append("					<th>차단</th>\n");
+			tag.append("			</tr>\n\n");
+			
+			for(int i=0; i<nlist.size(); i++){		
+						
+				tag.append("	<tr align='center'>\n");
+				tag.append("	               <td>\n");
+				tag.append("<input type='checkbox' name='RowCheck0' value='"+nlist.get(i).getN_index()+"'/>\n");
+				tag.append("                   </td>\n");
+				tag.append("					<td>"+nlist.get(i).getM_id2()+"</td>\n"); // 蹂대궦 �궗�엺�뱾
+				tag.append("					<td>"+nlist.get(i).getN_subject()+"</td>\n");
+				// tt22 : 내용에 ...(말 줄임) 표시를 하기 위해 처리된 내용 
+				int len =nlist.get(i).getN_content().length();
+				if(len >= 20) {
+					//tag.append("<td><a href='mailDetail?index="+nlist.get(i).getN_index()+"'>"+nlist.get(i).getN_content().substring(0, 20)+"...</a></td>\n");
+					tag.append("<td><a href='#' onclick='countRead("+nlist.get(i).getN_index()+")'>"+nlist.get(i).getN_content().substring(0, 20)+"...</a></td>\n");
+					
+				}else {
+					tag.append("<td><a href='#' onclick='countRead("+nlist.get(i).getN_index()+")'>"+nlist.get(i).getN_content()+"</a></td>\n");
+				}
+				
+				// tt22
+				tag.append("<td>"+nlist.get(i).getN_date()+"</td>\n");
+				tag.append("<td>차단</td>\n");
+				
+				tag.append("			</tr>\n\n");
+			
+				
+			}
+			
+			tag.append("		 </table>\n");
+			tag.append("         <button type='submit' name='btn_sort' value='1'/>삭제</button>\n");
+			tag.append("         <button type='submit' name='btn_sort' value='2'/>차단</button>\n");
+			tag.append("</form>");
+		
+			return tag.toString();
+		}
+		
+		
+		private String makeHtmlNlist_1(List<Note> nlist) { // 蹂대궦 履쎌�
+			
+			
+			StringBuilder tag = new StringBuilder();
+			tag.append("<form name='frm' action='mailDelete1' method='post'>");
+			tag.append("<table border='1' style='border-collapse: collapse;' >\n");
+			tag.append("	<th><input id='allCheck1' type='checkbox' onclick='allChk1(this);'/></th>\n");
+			tag.append("					<th>보낸 사람</th>\n");   
+			tag.append("					<th>제목</th>\n");
+			tag.append("					<th>내용</th>\n");
+			tag.append("					<th>받은 날짜</th>\n");
+			tag.append("					<th>차단</th>");
+			tag.append("			</tr>\n\n");
+			
+			for(int i=0; i<nlist.size(); i++){		
+				if(nlist.get(i).getN_state() == 0){
+				tag.append("		<tr align='center'>\n");
+				}else{
+				tag.append("	<tr align='center'  style='color:#A4A4A4'>\n");	
+				}
+				tag.append("	               <td>\n");
+				tag.append("<input type='checkbox' name='RowCheck1' value='"+nlist.get(i).getN_index()+"'/>\n");
+				tag.append("                   </td>\n");
+				tag.append("					<td>"+nlist.get(i).getM_id()+"</td>\n");
+				tag.append("					<td>"+nlist.get(i).getN_subject()+"</td>\n");
+				// tt22 : 내용에 ...(말 줄임) 표시를 하기 위해 처리된 내용 
+				int len =nlist.get(i).getN_content().length();
+				
+				if(len >= 20) {
+					tag.append("<td><a href='#' onclick='countRead("+nlist.get(i).getN_index()+")'>"+nlist.get(i).getN_content().substring(0, 20)+"...</a></td>\n");
+					
+				}else {
+					tag.append("<td><a href='#' onclick='countRead("+nlist.get(i).getN_index()+")'>"+nlist.get(i).getN_content()+"</a></td>\n");
+				}
+				
+
+				// tt22
+				tag.append("<td>"+nlist.get(i).getN_date()+"</td>\n");
+				tag.append("<td><a href='noteBlock?id_1="+nlist.get(i).getM_id2()+"&id_2="+nlist.get(i).getM_id()+"'>차단</a></td>\n");
+				tag.append("</tr>\n\n");
+			}
+			
+			tag.append("		</table>\n");
+			tag.append("         <button type='submit' name='btn_sort' value='1'/>삭제</button>\n");
+			tag.append("         <button type='submit' name='btn_sort' value='2'/>신고</button>\n");
+			tag.append("</form>");
+			return tag.toString();
+		}
+		
+
+			
+
+		public ModelAndView nt_NoteWrite() {
+			//int n_index;
+			Note nt = new Note();
+			
+			String m_id = request.getParameter("m_id");
+			String m_id2 = request.getParameter("m_id2");
+			String n_subject = request.getParameter("n_subject");
+			String n_content = request.getParameter("n_content");
+			int n_state = 0;
+			int n_sort = 0 ;
+			
+			nt.setM_id(m_id);
+			nt.setM_id2(m_id2);
+			nt.setN_content(n_content);
+			nt.setN_subject(n_subject);
+			nt.setN_sort(n_sort);
+			nt.setN_state(n_state);
+
+			System.out.println(m_id +" "+  m_id2 +" " + n_subject +" " + n_content);
+			System.out.println(nt);
+			System.out.println(nt.getN_content());
+		
+			if(nDao.noteInsert(nt) == 1){
+	          
+	            System.out.println("�꽦怨�!!!");
+	        }else{
+	          
+	            mav.setViewName("main");
+	        }
+
+			view = "note/noteList";
+			mav.setViewName(view);
+			return mav;
+		}
+
+
+
+		public int mailDelete(int index) {			
+			System.out.println("mailDelete"+index);
+						
+			nDao.mailDelete(index);
+			
+			return 0;
+		}
+		
+		public int mailReport(int index) {
+			System.out.println("mailBan"+index);
+			int suc = 0;
+			suc = nDao.mailReport(index);
+		
+			return 0;
+		}
+
+		
+		public int noteBlock(String id_1, String id_2) {
+			System.out.println("noteBlock"+id_1 + id_2);
+			
+			// 1 요청자 2받은 사람
+			HashMap<String, Object> setBlock = new HashMap<String, Object>();
+			setBlock.put("M_ID", id_1);
+			setBlock.put("M_ID2", id_2);
+			
+			
+			int suc = 0;
+			suc = nDao.noteBlock(setBlock);
+			System.out.println(suc);
+			mav.setViewName("note/noteList");
+			return 0;
+		}
+
+
+		
+
+
+		public ModelAndView nt_NoteDetail(int index) {
+			
+			List<Note> nDetail = null;
+			System.out.println("index  :  "+index);
+			// detail
+			nDetail = nDao.noteDetail(index);
+			System.out.println("size : " +nDetail);
+			
+			// 읽음 상태 바꾸기 // 상세보기를 클릭 하면 상태 1로 변경
+		    int a = 0;
+			a = nDao.noteState(index);			
+			System.out.println("상태변환 값" + a);
+			
+			
+			
+		
+			mav.addObject("nDetail", nDetail);
+			mav.setViewName("note/noteDetail");
+			return mav;
+		}
+
+
+
+
+
+
+		
+	
+}

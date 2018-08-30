@@ -1,0 +1,20 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!-- boardMapper.xml : 게시판관련 쿼리문 -->
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="icia.mvc.dao.IMySpaceDAO" >
+
+	<select id = "MyWriteList" parameterType="String" resultType="Board">
+	SELECT * FROM COMBOARD WHERE m_id = #{id}
+	</select>
+	
+	<select id = "MyBookList" parameterType="String" resultType="Board">
+	    SELECT * FROM COMBOARD C
+        RIGHT JOIN RECOMMAND R ON C.CB_INDEX = R.CB_INDEX
+        WHERE R.M_ID = #{id}
+	</select>
+	<delete id = "myBookDel" parameterType="int">
+
+
+	</delete>
+	
+</mapper>

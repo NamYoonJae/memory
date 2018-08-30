@@ -1,0 +1,61 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!-- boardMapper.xml : 게시판관련 쿼리문 -->
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="icia.mvc.dao.INoteDAO">
+	<select id="getNoteList_0" parameterType="String" resultType="icia.mvc.bean.Note">
+		
+			SELECT * FROM NOTE WHERE m_id = #{id}
+			
+	</select>
+	
+	
+	
+	
+	<select id="getNoteList_1" parameterType="String" resultType="icia.mvc.bean.Note">
+	
+		SELECT N.N_INDEX, N.M_ID, N.M_ID2, N.N_STATE, N.N_DATE, N.N_SUBJECT, N.N_CONTENT, N.N_SORT
+		FROM NOTE N
+		LEFT JOIN BLACKLIST B ON N.M_ID = B.M_ID2
+		WHERE N.M_ID2 = #{id} AND B.M_ID2 IS NULL
+		
+	</select>
+	
+	<insert id="noteInsert" parameterType="icia.mvc.bean.Note">
+		INSERT INTO NOTE VALUES(SEQ_NOTE.NEXTVAL, #{m_id}, #{m_id2}, #{n_state}, sysdate ,#{n_subject}, #{n_content}, #{n_sort})
+	</insert>
+	
+	<delete id="mailDelete" parameterType="int">
+		DELETE FROM NOTE WHERE n_index = #{index}
+	</delete>
+	
+	
+	<select id="noteDetail" parameterType="int" resultType="icia.mvc.bean.Note">
+			SELECT * FROM NOTE WHERE n_index = #{index}
+	</select>
+	
+	<insert id="noteBlock" parameterType="map">
+		INSERT INTO BlackList VALUES(#{M_ID}, #{M_ID2})
+	</insert>
+	
+	<update id="noteState" parameterType="int">
+		UPDATE NOTE SET N_STATE = '1' WHERE n_index = #{index}
+	</update>
+	
+	<select id="noteCount" parameterType="String" resultType="int">
+	
+	SELECT count(n_state)
+	FROM NOTE N
+	LEFT JOIN BLACKLIST B ON N.M_ID = B.M_ID2
+	WHERE N.M_ID2 = #{id} AND B.M_ID2 IS NULL AND n_state = '0'
+	
+	</select>
+	
+	
+	<!-- SELECT * FROM BLIST1 WHERE RNUM >=#{pageNum}*10-9 AND RNUM <=#{pageNum}*10 -->
+	<!-- SELECT ROWNUM AS NUM, RNUM, B_NUM, B_TITLE, B_CONTENTS, B_ID, M_NAME, TO_CHAR(B_DATE, 'YYYY/MM/DD HH:MI:SS') AS B_DATE, B_VIEWS FROM (SELECT * FROM BLIST1 ORDER BY B_DATE ASC) WHERE RNUM >=#{pageNum}*10-9 AND RNUM <=#{pageNum}*10 -->
+	<!-- SELECT RNUM, B_NUM, B_TITLE, B_CONTENTS, B_ID, M_NAME, TO_CHAR(B_DATE, 'YYYY/MM/DD HH:MI:SS') AS B_DATE, B_VIEWS FROM (SELECT * FROM BLIST1 ORDER BY B_DATE ASC) WHERE RNUM >=#{pageNum}*10-9 AND RNUM <=#{pageNum}*10 -->
+	<!-- SELECT ROWNUM AS NUM, RNUM, B_NUM, B_TITLE, B_CONTENTS, B_ID, M_NAME, TO_CHAR(B_DATE, 'YYYY/MM/DD HH:MI:SS') AS B_DATE, B_VIEWS 
+			FROM (SELECT * FROM BLIST1 ORDER BY B_DATE ASC) WHERE RNUM >=#{pageNum}*10-9 AND RNUM <=#{pageNum}*10 ORDER BY RNUM DESC -->
+	<!-- SELECT * FROM BLIST1 WHERE RNUM >=#{pageNum}*10-9 AND RNUM <=#{pageNum}*10 ORDER BY RNUM DESC -->
+	<!-- SELECT ROWNUM AS NUM, RNUM, B_NUM, B_TITLE, B_CONTENTS, B_ID, M_NAME, TO_CHAR(B_DATE, 'YYYY/MM/DD HH:MI:SS') AS B_DATE, B_VIEWS FROM (SELECT * FROM BLIST1 ORDER BY RNUM DESC) WHERE RNUM >=#{pageNum}*10-9 AND RNUM <=#{pageNum}*10 ORDER BY RNUM ASC -->
+</mapper>

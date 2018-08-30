@@ -1,0 +1,288 @@
+package icia.mvc.service;
+
+import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.List;
+
+import javax.servlet.http.HttpServletRequest;
+import javax.servlet.http.HttpSession;
+
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.stereotype.Service;
+import org.springframework.web.servlet.ModelAndView;
+
+import icia.mvc.bean.ClassBean;
+import icia.mvc.bean.Location;
+import icia.mvc.bean.Note;
+import icia.mvc.dao.INoteDAO;
+import icia.mvc.dao.IlocationDAO;
+
+
+@Service
+public class LocationMM {
+	
+	
+	@Autowired
+	private IlocationDAO lDao;
+	
+	@Autowired
+	private HttpSession session;
+	
+	@Autowired
+	private HttpServletRequest request;
+
+	private ModelAndView mav;
+	private String view;
+
+
+	   public ModelAndView locations(String id) {
+		      ModelAndView mav = new ModelAndView();
+
+
+		      List<ClassBean> locList = new ArrayList<ClassBean>();
+		      List<String> rlist1 = new ArrayList<String>();
+		      List<String> rlist2 = new ArrayList<String>();
+		      HashMap<Object, Object> list = new HashMap<Object, Object>();
+		      
+		      /*
+		      list.put("loc", "인천 남구 경인남길30번길 33");
+		      list.put("loc", "인천 남구 인하로47번길 5");
+		      list.put("loc", "인천 남구 인하로67번길 5");
+		      list.put("loc", "인천 남구 경인남길30번길 91");
+		      list.put("loc", "인천 남구 인하로91번길 6");
+		      list.put("loc", "인하로47번길 148");
+
+		      list.put("content", "독서");
+		      list.put("content", "독서");
+		      list.put("content", "운동");
+		      list.put("content", "노래");
+		      list.put("content", "영화");
+		      list.put("content", "공부");
+
+
+		      loc.setLocation("인천 남구 경인남길30번길 33");
+		      loc.setLocation("인천 남구 인하로47번길 5");
+		      loc.setLocation("인천 남구 인하로67번길 5");
+
+		       */
+
+		      rlist1.add("인천 남구 경인남길30번길 33");
+		      rlist1.add("인천 남구 인하로47번길 5");
+		      rlist1.add("인천 남구 인하로67번길 5");
+		      rlist1.add("인천광역시 남구 인하로 100");
+		      rlist1.add("인천 남구 인하로91번길 6");
+		      rlist1.add("인하로47번길 148");
+
+		      rlist2.add("독서");
+		      rlist2.add("노래");
+		      rlist2.add("공부");
+		      rlist2.add("운동");
+		      rlist2.add("독서");
+		      rlist2.add("독서");
+
+
+		      System.out.println(rlist2.get(0));
+		      System.out.println(rlist1.get(0));
+
+		      String myLocation = lDao.mmAdress(id);
+		      System.out.println("myLocation" + myLocation);
+		      locList = lDao.locatioInfo();
+		      
+		      
+		      String locMark = locMark(locList , myLocation);
+		      
+		      
+		      System.out.println(locList);
+		      //   String addrList = addrList();
+		      String addrList1 = addrList1();
+
+		     
+
+		      mav.addObject("addrList1", addrList1);
+		      //mav.addObject("addrList", addrList);
+		      mav.addObject("list1", rlist1);
+		      mav.addObject("list2", rlist2);
+		      mav.addObject("list2", rlist2);
+		      mav.addObject("test", locMark);
+		      mav.setViewName("location/LBRS"); 
+
+
+
+
+
+		      return mav;
+
+		   }
+	   
+		 
+		private String locMark(List<ClassBean> locList, String myLocation) {
+		      StringBuilder tag = new StringBuilder();
+
+
+		      tag.append("\n");
+
+		      tag.append("var geocoder = new daum.maps.services.Geocoder();\n");
+		      
+		      tag.append("geocoder.addressSearch('"+myLocation+"', function(result, status) {\n");
+		      tag.append("  if (status === daum.maps.services.Status.OK) {\n");
+		      tag.append("    var coords = new daum.maps.LatLng(result[0].y, result[0].x);\n");
+		      tag.append("   var marker = new daum.maps.Marker({\n");
+		      tag.append("       map: map,\n");
+		      tag.append("       position: coords\n");
+		      tag.append("   });\n");
+		      tag.append("   var infowindow = new daum.maps.InfoWindow({\n");
+		      tag.append("       content: '내 위치'\n");
+		      tag.append("   });\n");
+		      tag.append("  infowindow.open(map, marker);\n");
+		      tag.append("  map.setCenter(coords);\n");
+		      tag.append(" } \n");
+		      tag.append("   });  \n");
+
+
+
+		   
+
+		      tag.append("var geocoder = new daum.maps.services.Geocoder();\n");
+
+		      //tag.append("for(var i=0; i<"++"; i++) { \n");
+		      for(int i=0; i<locList.size(); i++) {
+		    	  
+		    	  String a = null;
+		    	  switch(locList.get(i).getCn_index()){
+		    	  	case 1:
+		    	  		a="도서";
+		    	        break;
+		    	    case 2:
+		    	    	a="영화";
+		    	        break;
+		    	    case 3:
+		    	    	a="음악";
+		    	        break;
+		    	    case 4:
+		    	    	a="공예";
+		    	        break;
+		    	    case 5:
+		    	    	a="사진";
+		    	        break;
+		    	    case 6:
+		    	    	a="운동";
+		    	        break;
+		    	    default:
+		    	    	a="기타";
+		    	}
+		    
+
+
+		         tag.append("var asd = '"+locList.get(i).getC_address()+"';\n");
+		         //   tag.append("console.log("주소"+asd);\n");
+		         tag.append("geocoder.addressSearch(asd, function(result ,status) {\n");
+		         // 정상적으로 검색이 완료됐으면 
+		         tag.append("       if (status === daum.maps.services.Status.OK) {\n");
+
+		         tag.append("       var coords = new daum.maps.LatLng(result[0].y, result[0].x);\n");
+
+		         tag.append("       var marker = new daum.maps.Marker({\n");
+		         tag.append("          map: map,\n");
+		         tag.append("          position: coords\n");
+		         tag.append("      });\n");
+
+
+		         
+		         
+		         	
+		         tag.append("       var aa = '["+ a +"] "+locList.get(i).getC_subject()+"'\n");
+		         tag.append("       var infowindow = new daum.maps.InfoWindow({\n");
+		         tag.append("           content: aa// 인포윈도우에 표시할 내용\n");
+		         tag.append("       });\n");
+
+
+
+		         tag.append("    (function(marker, infowindow) {\n");
+		         // 마커에 mouseover 이벤트를 등록하고 마우스 오버 시 인포윈도우를 표시합니다 
+		         tag.append("daum.maps.event.addListener(marker, 'mouseover', function() {\n");
+		         tag.append("            infowindow.open(map, marker);\n");
+		         tag.append("   });\n");
+
+
+		         // 마커에 mouseout 이벤트를 등록하고 마우스 아웃 시 인포윈도우를 닫습니다
+		         tag.append("daum.maps.event.addListener(marker, 'mouseout', function() {\n");
+		         tag.append("               infowindow.close();\n");
+		         tag.append("           });\n");
+		         tag.append("       })(marker, infowindow);\n");
+
+		         tag.append("     }\n");
+		         tag.append("  });\n");
+		      }
+		      //tag.append("}\n");
+
+
+
+
+
+
+
+		      return tag.toString();
+		   }
+
+
+		   private String addrList(List<String> rlist1, List<String> rlist2) { // 獄쏆룇占� 筌잛럩占�
+
+		      StringBuilder tag = new StringBuilder();
+		      tag.append("");
+		      tag.append(" var positions = [\n");
+		      tag.append("{\n");
+		      tag.append("content: '<div>가가가가가</div>', \n");
+		      tag.append("latlng: '인천 남구 경인남길30번길 33'\n");
+		      tag.append(" },\n");
+		      tag.append("          {\n");
+		      tag.append("           content: '<div>나나나나나</div>', \n");
+		      tag.append("       latlng: '인천 남구 인하로47번길 5'\n");
+		      tag.append("},\n");
+		      tag.append(" {\n");
+		      tag.append("    content: '<div>다다다다다다</div>', \n");
+		      tag.append("       latlng: '인천 남구 인하로67번길 5'\n");
+		      tag.append("      },\n");
+		      tag.append("      {\n");
+		      tag.append("     content: '<div>마마마마마</div>',\n");
+		      tag.append("     latlng: '인천 남구 인하로91번길 6'\n");
+		      tag.append("   }\n");
+		      tag.append("];\n");
+
+
+		      return tag.toString();
+		   }
+
+
+		   private String addrList1() { // 獄쏆룇占� 筌잛럩占�
+
+		      StringBuilder tag = new StringBuilder();
+		      tag.append("");
+		      tag.append(" var positions1 = [\n");
+		      tag.append("{\n");
+		      tag.append("content: '<div>가가가가가</div>', \n");
+		      tag.append("latlng: '인천 남구 경인남길30번길 33'\n");
+		      tag.append(" },\n");
+		      tag.append("          {\n");
+		      tag.append("           content: '<div>나나나나나</div>', \n");
+		      tag.append("       latlng: '인천 남구 인하로47번길 5'\n");
+		      tag.append("},\n");
+		      tag.append(" {\n");
+		      tag.append("    content: '<div>다다다다다다</div>', \n");
+		      tag.append("       latlng: '인천 남구 인하로67번길 5'\n");
+		      tag.append("      },\n");
+		      tag.append("      {\n");
+		      tag.append("     content: '<div>마마마마마</div>',\n");
+		      tag.append("     latlng: '인천 남구 인하로91번길 6'\n");
+		      tag.append("   }\n");
+		      tag.append("];\n");
+
+
+		      return tag.toString();
+		   }
+
+
+
+
+
+
+}

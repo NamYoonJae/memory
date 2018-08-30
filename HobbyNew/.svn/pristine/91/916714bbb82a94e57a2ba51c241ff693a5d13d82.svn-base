@@ -1,0 +1,79 @@
+package icia.mvc.habbynew;
+
+import javax.servlet.http.HttpServletRequest;
+import javax.servlet.http.HttpSession;
+
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.stereotype.Controller;
+import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RequestMethod;
+import org.springframework.web.bind.annotation.RequestParam;
+import org.springframework.web.servlet.ModelAndView;
+
+import icia.mvc.bean.Member;
+import icia.mvc.service.MySpaceMM;
+import icia.mvc.service.NoteMM;
+
+@Controller
+public class MySpaceController {
+private ModelAndView mav;
+	
+	@Autowired
+	private NoteMM nt;
+	@Autowired
+	private MySpaceMM ms;
+	
+	
+	@Autowired
+	private HttpSession session;
+	
+	HttpServletRequest request;
+	
+	@RequestMapping(value = "/mySpace", method = RequestMethod.GET)
+	   public ModelAndView mySpace() {
+			mav = new ModelAndView();
+		
+			
+			mav.setViewName("myspace/mySpace"); 
+			return mav;
+	   }
+	
+	@RequestMapping(value = "/mySpaceList", method = RequestMethod.GET)
+	   public ModelAndView myClassList(@RequestParam("sort") int sort) {
+			mav = new ModelAndView();
+			System.out.println(sort);
+			
+			switch(sort){
+			case 1:
+				mav = ms.MyClassList();
+				mav.setViewName("myspace/myClassList"); 
+				break;
+			case 2:
+				mav = ms.MyWriteList(1); // 즐겨 찾기
+
+				break;
+			case 3:
+				mav = ms.MyWriteList(2); // 내가 쓴글
+				
+				break;
+			}
+
+			return mav;
+	   }
+	
+	@RequestMapping(value = "/myBookDel", method = RequestMethod.GET)
+	   public ModelAndView myBookDel(int index) {
+			System.out.println("index " + index);
+			mav = new ModelAndView();
+			mav = ms.myBookDel(index);
+			
+			mav.setViewName("myspace/mySpace"); 
+			return mav;
+	   }
+	
+	
+	
+	
+}

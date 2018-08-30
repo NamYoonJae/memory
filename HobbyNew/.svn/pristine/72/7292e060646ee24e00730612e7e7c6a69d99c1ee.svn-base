@@ -1,0 +1,237 @@
+package icia.mvc.service;
+
+import java.io.File;
+import java.io.FileInputStream;
+import java.util.List;
+import java.util.Map;
+
+import javax.servlet.ServletOutputStream;
+import javax.servlet.http.HttpServletRequest;
+import javax.servlet.http.HttpServletResponse;
+
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.stereotype.Service;
+import org.springframework.web.servlet.ModelAndView;
+
+import icia.mvc.bean.Board;
+import icia.mvc.bean.ClassName;
+import icia.mvc.bean.Report;
+import icia.mvc.bean.User;
+import icia.mvc.dao.IadminDAO;
+
+@Service
+public class AdminMM {
+
+	@Autowired
+	private IadminDAO aDao;
+
+	private ModelAndView mav;
+	
+	Map<String, List<ClassName>> cnMap;
+	// 회원 전체 목록
+	public ModelAndView userList() {
+		System.out.println("userList Service");
+		mav = new ModelAndView();
+
+
+		List<User> userList = aDao.getUserList();
+		System.out.println("회원수 : "+userList.size());
+		mav.addObject("userList", userList);
+		mav.setViewName("sj_admin/memberManagement");
+
+		return mav;
+	}
+
+	public ModelAndView userSortList(int sort) {
+		System.out.println("userSortList Service");
+		mav = new ModelAndView();
+		List<User> userSortList;
+		if(sort == -1){
+			userSortList = aDao.getUserList();
+			mav.addObject("m_sort", null);
+		}else{
+			userSortList = aDao.getUserSortList(sort);
+			mav.addObject("m_sort", sort);
+		}
+		System.out.println("회원수 : "+userSortList.size());
+		
+		mav.addObject("userList", userSortList);
+		mav.setViewName("sj_admin/memberManagement");
+		return mav;
+	}
+
+	public ModelAndView userSearch(String searchValue) {
+		System.out.println("userSearch Service");
+		System.out.println(searchValue);
+		mav = new ModelAndView();
+		List<User> userSearchList = aDao.getUserSearchList(searchValue);
+		mav.addObject("userList", userSearchList);
+		mav.setViewName("sj_admin/memberManagement");
+		return mav;
+	}
+	
+	public ModelAndView qUserSearch(String searchValue) {
+		mav = new ModelAndView();
+		List<Board> userSearchList = aDao.qUserSearch(searchValue);
+		mav.addObject("qstList", userSearchList);
+		mav.setViewName("sj_admin/questionMgt");
+		return mav;
+	}
+
+	public ModelAndView userBen(String m_id) {
+		System.out.println("userBen Service");
+		System.out.println(m_id);
+		mav = new ModelAndView();
+		int success = aDao.updateUserSort(m_id);
+		if(success == 1){
+			mav.setViewName("redirect:/userMgt");
+		}
+		return mav;
+	}
+	
+	//경고버튼 누른 후 경고 사유 적은 뒤 경고횟수 추가용
+	public ModelAndView userWarn(String m_id) {
+		System.out.println("userWarn Service");
+		mav = new ModelAndView();
+		int result = aDao.updateUserWarn(m_id);
+		int warnCount;
+		if(result == 1){
+			warnCount = aDao.getUserCount(m_id);
+			if(warnCount == 3){
+				userBen(m_id);
+			}
+		}
+		mav.setViewName("redirect:/userMgt");
+		return mav;
+	}
+
+	public ModelAndView getReportList() {
+		System.out.println("userWarn Service");
+		mav = new ModelAndView();
+		List<Report> reportList = aDao.getReportList();
+		mav.addObject("reportList", reportList);
+		mav.setViewName("sj_report/reportList");
+		return mav;
+	}
+
+	public ModelAndView getClassNameList() {
+		System.out.println("getClassNameList Service");
+		mav = new ModelAndView();
+		List<ClassName> cnList = aDao.getClassNameList();
+		mav.addObject("ClassNameList", cnList);
+		mav.setViewName("sj_admin/classMgt");
+		return mav;
+	}
+
+	public ModelAndView cnAdd(String cn_name) {
+		System.out.println("cnAdd Service");
+		mav = new ModelAndView();
+		try {
+			if(aDao.setClassName(cn_name) == 1){
+				mav.setViewName("redirect:/classMgt");
+			}
+		} catch (Exception e) {
+			mav.addObject("error", "중복된 분류명입니다.");
+			List<ClassName> cnList = aDao.getClassNameList();
+			mav.addObject("ClassNameList", cnList);
+			mav.setViewName("sj_admin/classMgt");
+		}
+		return mav;
+	}
+
+	/*public Map<String, List<ClassName>> cnAdd(String cn_name) {
+		System.out.println("cnAdd Service");
+		if(aDao.setClassName(cn_name) != 0){
+			List<ClassName> cnList = aDao.getClassNameList();
+			cnMap = new HashMap<String, List<ClassName>>();
+			cnMap.put("cnList", cnList);
+		}else{
+			cnMap = null;
+		}
+		return cnMap;
+	}*/
+	
+	public ModelAndView cnDel(String cn_name) {
+		System.out.println("cnDel Service");
+		mav = new ModelAndView();
+		if(aDao.delClassName(cn_name) == 1){
+			mav.setViewName("redirect:/classMgt");
+		}
+		return mav;
+	}
+
+	// 문의 관리 리스트
+	public ModelAndView questionMgt() {
+		mav = new ModelAndView();
+		String view=null;
+		
+		List<Board> qstList = aDao.questionMgt(); // comboard 가져오기
+		System.out.println("문의 관리 : "+qstList.get(0).getCb_subject());
+		
+		if(qstList != null){
+			mav.addObject("qstSort", "문의 종류");
+			mav.addObject("qstList", qstList);
+			view="sj_admin/questionMgt";
+			mav.setViewName(view);
+		}
+		return mav;
+	}
+
+	// 문의 관리 종류 분류
+	public ModelAndView sortList(String sort) {
+		mav = new ModelAndView();
+		List<Board> sortLists;
+		
+		if(sort.equals("문의 종류")){
+			sortLists = aDao.questionMgt();
+			mav.addObject("m_sort", null);
+		}else{
+			sortLists = aDao.questionMgtSort(sort); // 전체가 아닌 경우 분류
+			mav.addObject("sortLists", sortLists);
+		}
+		
+		mav.addObject("qstSort", sort);
+		mav.addObject("qstList", sortLists);
+		mav.setViewName("sj_admin/questionMgt");
+		return mav;
+	}
+
+	// 문의 관리 파일 다운로드
+	public void qFileDown(String f_newName, String f_oriName, int fs_index, HttpServletRequest request, HttpServletResponse response) {
+		UploadFile uploadFile = new UploadFile();
+		String savePath;
+		
+		String root = uploadFile.getPath(fs_index);
+        savePath = root+f_newName;
+        System.out.println(savePath);
+
+        try {         
+        	File file=new File(savePath);
+        	byte b[] = new byte[(int) file.length()];
+        	String encoding = new String(f_oriName.getBytes("UTF-8"),"8859_1"); //한글 인코딩
+ 
+        	//page의 content-type을 동적으로 하기위해 초기화 시킴
+        	response.reset();
+        	response.setContentType("application/octet-stream");           
+        	response.setHeader("Content-Disposition", "attachment;filename="+encoding);
+        	response.setHeader("Content-Length", String.valueOf(file.length()));
+  
+        	if (file.isFile()){ // 파일이 있을경우
+        		System.out.println("file.isfile : "+file.isFile());
+        		FileInputStream fileInputStream = new FileInputStream(file);
+        		ServletOutputStream servletOutputStream = response.getOutputStream();                      
+        		
+        		//  파일을 읽어서 클라이언트쪽으로 저장한다.
+        		int readNum = 0;
+        		while ((readNum = fileInputStream.read(b)) != -1) {
+        			System.out.println("readnum : "+ readNum);
+        				servletOutputStream.write(b, 0, readNum);
+        		}
+	        	servletOutputStream.close();
+	        	fileInputStream.close();
+          }
+        } catch (Exception e) {         
+        	e.printStackTrace();         
+        }      
+	}
+}

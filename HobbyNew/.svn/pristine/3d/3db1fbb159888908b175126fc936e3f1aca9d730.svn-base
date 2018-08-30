@@ -1,0 +1,155 @@
+package icia.mvc.service;
+
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
+
+import javax.servlet.http.HttpServletRequest;
+
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.stereotype.Service;
+import org.springframework.web.servlet.ModelAndView;
+
+import icia.mvc.bean.ClassName;
+import icia.mvc.bean.Report;
+import icia.mvc.bean.User;
+import icia.mvc.dao.IadminDAO;
+
+@Service
+public class AdminMM {
+
+
+	@Autowired
+	private IadminDAO aDao;
+
+	private ModelAndView mav;
+	
+	Map<String, List<ClassName>> cnMap;
+	// 회원 전체 목록
+	public ModelAndView userList() {
+		System.out.println("userList Service");
+		mav = new ModelAndView();
+
+
+		List<User> userList = aDao.getUserList();
+		System.out.println("회원수 : "+userList.size());
+		mav.addObject("userList", userList);
+		mav.setViewName("sj_admin/memberManagement");
+
+		return mav;
+	}
+
+	public ModelAndView userSortList(int sort) {
+		System.out.println("userSortList Service");
+		mav = new ModelAndView();
+		List<User> userSortList;
+		if(sort == -1){
+			userSortList = aDao.getUserList();
+			mav.addObject("m_sort", null);
+		}else{
+			userSortList = aDao.getUserSortList(sort);
+			mav.addObject("m_sort", sort);
+		}
+		System.out.println("회원수 : "+userSortList.size());
+		
+		mav.addObject("userList", userSortList);
+		mav.setViewName("sj_admin/memberManagement");
+		return mav;
+	}
+
+	public ModelAndView userSearch(String searchValue) {
+		System.out.println("userSearch Service");
+		System.out.println(searchValue);
+		mav = new ModelAndView();
+		List<User> userSearchList = aDao.getUserSearchList(searchValue);
+		mav.addObject("userList", userSearchList);
+		mav.setViewName("sj_admin/memberManagement");
+		return mav;
+	}
+
+	public ModelAndView userBen(String m_id) {
+		System.out.println("userBen Service");
+		System.out.println(m_id);
+		mav = new ModelAndView();
+		int success = aDao.updateUserSort(m_id);
+		if(success == 1){
+			mav.setViewName("redirect:/userMgt");
+		}
+		return mav;
+	}
+	
+	//경고버튼 누른 후 경고 사유 적은 뒤 경고횟수 추가용
+	public ModelAndView userWarn(String m_id) {
+		System.out.println("userWarn Service");
+		mav = new ModelAndView();
+		int result = aDao.updateUserWarn(m_id);
+		int warnCount;
+		if(result == 1){
+			warnCount = aDao.getUserCount(m_id);
+			if(warnCount == 3){
+				userBen(m_id);
+			}
+		}
+		mav.setViewName("redirect:/userMgt");
+		return mav;
+	}
+
+	public ModelAndView getReportList() {
+		System.out.println("userWarn Service");
+		mav = new ModelAndView();
+		List<Report> reportList = aDao.getReportList();
+		mav.addObject("reportList", reportList);
+		mav.setViewName("sj_report/reportList");
+		return mav;
+	}
+
+	public ModelAndView getClassNameList(HttpServletRequest request) {
+		System.out.println("getClassNameList Service");
+		mav = new ModelAndView();
+		List<ClassName> cnList = aDao.getClassNameList();
+		mav.addObject("ClassNameList", cnList);
+		/*String error = request.getParameter("error");
+		if(error != null){
+			mav.addObject(error);
+		}*/
+		mav.setViewName("sj_admin/classMgt");
+		return mav;
+	}
+
+	public ModelAndView cnAdd(String cn_name) {
+		System.out.println("cnAdd Service");
+		mav = new ModelAndView();
+		try {
+			if(aDao.setClassName(cn_name) == 1){
+				mav.setViewName("redirect:/classMgt");
+			}
+		} catch (Exception e) {
+			mav.addObject("error", "중복된 분류명입니다.");
+			List<ClassName> cnList = aDao.getClassNameList();
+			mav.addObject("ClassNameList", cnList);
+			mav.setViewName("sj_admin/classMgt");
+		}
+		return mav;
+	}
+
+	/*public Map<String, List<ClassName>> cnAdd(String cn_name) {
+		System.out.println("cnAdd Service");
+		if(aDao.setClassName(cn_name) != 0){
+			List<ClassName> cnList = aDao.getClassNameList();
+			cnMap = new HashMap<String, List<ClassName>>();
+			cnMap.put("cnList", cnList);
+		}else{
+			cnMap = null;
+		}
+		return cnMap;
+	}*/
+	
+	public ModelAndView cnDel(String cn_name) {
+		System.out.println("cnDel Service");
+		mav = new ModelAndView();
+		if(aDao.delClassName(cn_name) == 1){
+			mav.setViewName("redirect:/classMgt");
+		}
+		return mav;
+	}
+}

@@ -1,0 +1,18 @@
+package icia.mvc.dao;
+
+import java.util.List;
+import java.util.Map;
+
+import icia.mvc.bean.Photo;
+
+public interface PhotoDAO {
+
+	int comboardWrite(Map<String, String> pMap);
+
+	int photoFileInsert(Map<String, String> pMap);
+
+	List<Photo> photoList();
+
+	Photo photoAjax(int cb_index);
+
+}

@@ -1,0 +1,28 @@
+package icia.mvc.habbynew;
+
+
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.stereotype.Controller;
+import org.springframework.web.bind.annotation.ModelAttribute;
+import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RequestMethod;
+import org.springframework.web.servlet.ModelAndView;
+
+import icia.mvc.service.LocationMM;
+
+@Controller
+public class LocationController {
+	private ModelAndView mav;	
+	
+	@Autowired
+	private LocationMM loc;
+	
+	@RequestMapping(value = "/locService", method = RequestMethod.GET)
+	   public ModelAndView locService() {
+			System.out.println("locService 소환!");
+			mav = new ModelAndView();
+			mav = loc.locService();
+			return mav;
+	   }
+
+}

@@ -1,0 +1,26 @@
+package icia.mvc.habbynew;
+
+import org.springframework.stereotype.Controller;
+import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RequestMethod;
+import org.springframework.web.servlet.ModelAndView;
+
+@Controller
+public class ClassController {
+	
+	private ModelAndView mav;
+	
+	@RequestMapping(value = "/hobbyClass", method = RequestMethod.GET)
+	public ModelAndView adminMain() {
+		mav = new ModelAndView();
+		mav.setViewName("sj_class/hobbyClassList");
+		return mav;
+	}
+	
+	@RequestMapping(value = "/classRecruitForm", method = RequestMethod.GET)
+	public ModelAndView classRecruitForm() {
+		mav = new ModelAndView();
+		mav.setViewName("sj_class/classRecruitForm");
+		return mav;
+	}
+}

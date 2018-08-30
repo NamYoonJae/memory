@@ -1,0 +1,107 @@
+package icia.mvc.habbynew;
+
+import javax.servlet.http.HttpServletRequest;
+
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.stereotype.Controller;
+import org.springframework.web.bind.annotation.PathVariable;
+import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RequestMethod;
+import org.springframework.web.bind.annotation.RequestParam;
+import org.springframework.web.servlet.ModelAndView;
+
+import icia.mvc.service.AdminMM;
+
+@Controller
+public class AdminController {
+	
+	@Autowired
+	private AdminMM am;
+	private ModelAndView mav;
+	
+	@RequestMapping(value = "/adminMain", method = RequestMethod.GET)
+	public ModelAndView adminMain() {
+		mav = new ModelAndView();
+		mav.setViewName("sj_admin/adminMain");
+		return mav;
+	}
+	
+	@RequestMapping(value = "/userMgt", method = RequestMethod.GET)
+	public ModelAndView userMgt() {
+		System.out.println("userList");
+		mav = am.userList();
+		return mav;
+	}
+	
+	@RequestMapping(value = "/userSortList", method = RequestMethod.POST)
+	public ModelAndView userListSort(@RequestParam("sort") int sort) {
+		System.out.println("userSortList");
+		mav = am.userSortList(sort);
+		return mav;
+	}
+	
+	@RequestMapping(value = "/userSearch", method = RequestMethod.POST)
+	public ModelAndView userSearch(@RequestParam("searchValue") String searchValue) {
+		System.out.println("userSearch");
+		System.out.println(searchValue);
+		mav = am.userSearch(searchValue);
+		return mav;
+	}
+	
+	@RequestMapping(value = "/userBen/{m_id}", method = RequestMethod.GET)
+    public ModelAndView userBen(@PathVariable String m_id) {
+		System.out.println("userBen");
+		System.out.println(m_id);
+        //url값을 파라미터로 전달하기 위해서 {url}과 동일하게 변수명을 선언하면 저장된다.
+        //@PathVariable 을 사용하여 url 파라미터값을 받아올 수 있음.
+        //restful은 무조건 json형식으로 반환.
+        mav = am.userBen(m_id);
+        return mav;
+	}
+	
+	@RequestMapping(value = "/userWarn/{m_id}", method = RequestMethod.GET)
+    public ModelAndView userWarn(@PathVariable String m_id) {
+		System.out.println("userWarn");
+		System.out.println(m_id);
+        //url값을 파라미터로 전달하기 위해서 {url}과 동일하게 변수명을 선언하면 저장된다.
+        //@PathVariable 을 사용하여 url 파라미터값을 받아올 수 있음.
+        //restful은 무조건 json형식으로 반환.
+        mav = am.userWarn(m_id);
+        return mav;
+	}
+	
+	@RequestMapping(value = "/reportMgt", method = RequestMethod.GET)
+	public ModelAndView reportMgt() {
+		System.out.println("reportMgt");
+		mav = am.getReportList();
+		return mav;
+	}
+	
+	@RequestMapping(value = "/classMgt", method = RequestMethod.GET)
+	public ModelAndView classMgt(HttpServletRequest request) {
+		System.out.println("classMgt");
+		mav = am.getClassNameList(request);
+		return mav;
+	}
+	
+	@RequestMapping(value = "/cnAdd", method = RequestMethod.GET)
+	public ModelAndView cnAdd(@RequestParam("cn_name") String cn_name) {
+		System.out.println("cnAdd");
+		mav = am.cnAdd(cn_name);
+		return mav;
+	}
+	
+	/*@RequestMapping(value = "/cnAdd", produces = "application/json; charset=utf8")
+	public @ResponseBody Map<String,List<ClassName>> cnAdd(String cn_name) {
+		System.out.println("cnAdd");
+		Map<String, List<ClassName>> cnMap = am.cnAdd(cn_name);
+		return cnMap;
+	}*/
+	
+	@RequestMapping(value = "/cnDel/{cn_name}", method = RequestMethod.GET)
+	public ModelAndView cnDel(@PathVariable String cn_name) {
+		System.out.println("cnDel");
+		mav = am.cnDel(cn_name);
+		return mav;
+	}
+}

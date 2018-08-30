@@ -1,0 +1,11 @@
+package icia.mvc.bean;
+
+import org.apache.ibatis.type.Alias;
+
+@Alias("Notice")
+public class Notice {
+	
+	
+	
+	
+}

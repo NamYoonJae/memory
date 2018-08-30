@@ -1,0 +1,30 @@
+package icia.mvc.dao;
+
+import java.util.List;
+
+import icia.mvc.bean.ClassName;
+import icia.mvc.bean.Report;
+import icia.mvc.bean.User;
+
+public interface IadminDAO {
+
+	List<User> getUserList();
+
+	List<User> getUserSortList(int sort);
+
+	List<User> getUserSearchList(String searchValue);
+
+	int updateUserSort(String m_id);
+
+	int updateUserWarn(String m_id);
+
+	int getUserCount(String m_id);
+
+	List<Report> getReportList();
+
+	List<ClassName> getClassNameList();
+
+	int setClassName(String cn_name);
+
+	int delClassName(String cn_name);
+}

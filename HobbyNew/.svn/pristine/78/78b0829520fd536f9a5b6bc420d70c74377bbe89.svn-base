@@ -1,0 +1,32 @@
+package icia.mvc.habbynew;
+
+import javax.servlet.http.HttpSession;
+
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.stereotype.Controller;
+import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RequestMethod;
+import org.springframework.web.servlet.ModelAndView;
+
+import icia.mvc.service.FreeMM;
+
+@Controller
+public class FreeController {
+	
+	private ModelAndView mav;
+	@Autowired
+	private FreeMM mm;
+	@Autowired
+	private HttpSession session;
+
+	
+	//자유게시판 리스트로 이동 freeList
+		@RequestMapping(value = "/freeList", method = RequestMethod.GET)
+		public ModelAndView freeList() {
+			mav = new ModelAndView();
+			mav.setViewName("NYJ/freeList");
+			return mav;
+		}
+	
+	
+}

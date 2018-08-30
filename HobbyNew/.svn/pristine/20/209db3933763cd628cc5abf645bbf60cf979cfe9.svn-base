@@ -1,0 +1,23 @@
+package icia.mvc.dao;
+
+import java.util.List;
+import java.util.Map;
+
+import icia.mvc.bean.Files;
+import icia.mvc.bean.Vote;
+
+public interface VoteDAO {
+
+	int comboardWrite(Vote vote);
+
+	int voteFileInsert(Files files);
+
+	int voteWrite(Vote vote);
+
+	int voteItemWrite(Map<String, Object> nameList);
+
+	List<Vote> voteList();
+
+	String getVoteFile(int cb_index);
+
+}

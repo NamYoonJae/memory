@@ -1,0 +1,51 @@
+package icia.mvc.service;
+
+import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.List;
+
+import org.springframework.stereotype.Service;
+import org.springframework.web.servlet.ModelAndView;
+
+@Service
+public class LocationMM {
+	ModelAndView mav = new ModelAndView();
+
+	   public ModelAndView locService() {
+	      
+	      
+	      
+	      List<String> rlist = new ArrayList<String>();
+	      HashMap<Object, Object> list = new HashMap<Object, Object>();
+	      list.put("loc", "인천 남구 경인남길30번길 33");
+	      list.put("loc", "인천 남구 인하로47번길 5");
+	      list.put("loc", "인천 남구 인하로67번길 5");
+	      
+	      /*
+	      loc.setLocation("인천 남구 경인남길30번길 33");
+	      loc.setLocation("인천 남구 인하로47번길 5");
+	      loc.setLocation("인천 남구 인하로67번길 5");
+	      */
+	      
+	      rlist.add("인천 남구 경인남길30번길 33");
+	      rlist.add("인천 남구 인하로47번길 5");
+	      rlist.add("인천 남구 인하로67번길 5");
+	      
+	      rlist.add("인천 남구 경인남길30번길 91");
+	      rlist.add("인천 남구 인하로91번길 6");
+	      rlist.add("인하로47번길 148");
+
+	      //LOC ldao = new LOC();
+	      //rlist = ldao.locationA();
+	      
+	      mav.addObject("list", rlist);
+	      mav.setViewName("location/LBRS"); 
+	      return mav;
+	            
+	   }
+
+
+	
+	
+	
+}

@@ -1,0 +1,66 @@
+<%@ page language="java" contentType="text/html; charset=UTF-8"
+    pageEncoding="UTF-8"%>
+<!DOCTYPE html>
+
+<html>
+	<head>
+		<meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
+		<title>Insert title here</title>
+		<script src="resources/js/jquery-2.1.1.js"></script>
+		<link rel="stylesheet" href="resources/assets/css/main.css" />
+	<style>
+	#header .links ul li{
+         line-height: 1;
+     	}
+	</style>
+	</head>
+	<body onload="check(${check})">
+	<h3>로그인 폼</h3>
+		<form action="mb_Login" name="loginForm" method="post">
+			<table border="1">
+			
+				<tr>
+					<td colspan="2" align="center" bgcolor="skyblue">로그인</td>
+				</tr>
+	                
+				<tr>
+					<td><input type="text" name="m_id" placeholder="아이디"></td>
+					<td rowspan="2"><button>로그인</button></td>
+				</tr>
+	                
+				<tr>
+					<td><input type="password" name="m_pw" placeholder="비밀번호"></td>
+				 </tr>
+	                
+				<tr>
+					<td colspan="2" align="center" bgcolor="skyblue">Hobby New</td>
+				</tr>
+	                
+				 <tr>
+				 	<td>
+				 		<a href="findIdPw">아이디/비밀번호 찾기</a>
+				 	</td>
+					 <td>
+						 <a href=joinChoice>회원가입</a>
+					</td>
+				</tr>
+			</table>
+		</form>
+	</body>
+	<script>
+	function check(check){
+		if(check==1){
+			alert("회원가입성공");
+		}else if(check==2){
+			alert("회원가입 실패")
+		}else if(check==3){
+			alert("회원가입 예외발생")
+		}else if(check==4){
+			alert("아이디 또는 비밀번호가 일치하지 않습니다")
+		}else if(check==5){
+			alert("탈퇴 된 회원입니다")
+		}
+	}
+	
+	</script>
+</html>

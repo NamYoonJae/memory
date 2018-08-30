@@ -1,0 +1,181 @@
+package icia.mvc.service;
+
+import java.util.List;
+
+import javax.servlet.http.HttpServletRequest;
+import javax.servlet.http.HttpSession;
+
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.stereotype.Service;
+import org.springframework.web.servlet.ModelAndView;
+
+import icia.mvc.bean.Board;
+import icia.mvc.bean.Member;
+import icia.mvc.dao.IMySpaceDAO;
+import icia.mvc.dao.ImemberDao;
+
+		
+
+		@Service
+		public class MySpaceMM {
+		
+			@Autowired
+			private HttpSession session;
+			@Autowired
+			private ImemberDao mDao;
+			@Autowired
+			private IMySpaceDAO msDao;
+			@Autowired
+			private HttpServletRequest request;
+			private ModelAndView mav;
+			
+	
+			public ModelAndView MyClassList() {
+				System.out.println("MyClassList");
+				
+				return mav;
+			}
+			public String MyClassListText(){
+				
+	
+				return null;
+			}
+
+			public ModelAndView MyBookList() {
+				System.out.println("MyBookList");
+				mav= new ModelAndView();
+				
+				return mav;
+			}
+
+			public ModelAndView MyWriteList(int s) {
+				System.out.println("MyWriteList");
+				mav= new ModelAndView();
+				Member mb = (Member) session.getAttribute("mb");
+				String id = mb.getM_id();
+				System.out.println("id ="+id);
+								
+				String mwText = null;
+				if(s==1){
+					System.out.println(1);
+					List<Board> mwList = msDao.MyBookList(id);	
+					mwText = MyBookListText(mwList);
+				}else if(s==2){
+					System.out.println(2);
+					List<Board> mwList = msDao.MyWriteList(id);	
+					mwText = MyWriteListText(mwList);
+				}
+				
+				
+				//mav.addObject("mwList" , mwList);
+				mav.addObject("mwText" , mwText);
+				mav.setViewName("myspace/mySpace");
+				
+				return mav;
+			}
+			
+			public String MyBookListText(List<Board> mwList){
+				StringBuilder tag = new StringBuilder();
+				
+				tag.append("<table>\n");
+				tag.append("<tr>\n");
+				tag.append("<th>  </th><th>대분류</th><th>제목</th><th>내용</th><th>작성자</th><th>작성일</th>\n");
+				tag.append("</tr>\n");
+				
+				String sort = "기타";
+				for(int i = 0 ; i<mwList.size(); i++){
+					switch(mwList.get(i).getCb_sort())
+					{
+					case 1:
+						sort = "[자유게시판]";
+						break;
+					case 2:
+						sort = "[투표게시판]";
+						break;
+					case 3:
+						sort = "[포토갤러리]";
+						break;
+				}
+				tag.append("<tr>\n");
+				tag.append("<td>\n");
+				tag.append("<div id = 'classToggle'>\n");
+				tag.append("<img id = 'star"+i+"' class = 'nostar' onclick = 'starDel(this,"+mwList.get(i).getCb_index()+")' src='resources/sj/star_toggle(yellow).png'/>\n");
+				tag.append("</div>\n");
+				tag.append("</td>");
+				
+				tag.append("<td>"+sort+"</td>"
+						+ "<td>"+mwList.get(i).getCb_subject()+"</td>"
+						+ "<td>"+mwList.get(i).getCb_content()+"</td>"
+						+ "<td>"+mwList.get(i).getM_id()+"</td>"
+						+ "<td>"+mwList.get(i).getCb_date()+"</td>\n");
+				tag.append("</tr>\n");
+				}
+			
+				tag.append("</table>");
+				
+				
+				return tag.toString();
+			}
+			
+			
+			
+
+			public String MyWriteListText(List<Board> mwList){
+				StringBuilder tag = new StringBuilder();
+
+				
+				tag.append("<table>\n");
+				tag.append("<tr>\n");
+				tag.append("<th>   </th><th>대분류</th><th>제목</th><th>내용</th><th>작성일</th>\n");
+				tag.append("</tr>\n");
+				String sort = "기타";
+					for(int i = 0 ; i<mwList.size(); i++){
+						switch(mwList.get(i).getCb_sort())
+						{
+						case 1:
+							sort = "[자유게시판]";
+							break;
+						case 2:
+							sort = "[투표게시판]";
+							break;
+						case 3:
+							sort = "[포토갤러리]";
+							break;
+					}
+				tag.append("<tr>\n");
+				
+				tag.append("<td>"+sort+"</td>"	
+						+ "<td>"+mwList.get(i).getCb_subject()+"</td>"
+						+ "<td>"+mwList.get(i).getCb_content()+"</td>"
+						+ "<td>"+mwList.get(i).getCb_date()+"</td>\n");
+				tag.append("</tr>\n");
+				}
+				tag.append("</table>");
+				return tag.toString();
+			
+			}
+			
+			public ModelAndView myBookDel(int index) {
+				// TODO Auto-generated method stub
+				
+				int suc = 0;
+				suc = msDao.myBookDel(index);
+				System.out.println("suc" + suc);
+				
+				
+				return mav;
+			}
+
+			
+			
+			
+		
+			
+		
+
+
+
+
+
+
+}

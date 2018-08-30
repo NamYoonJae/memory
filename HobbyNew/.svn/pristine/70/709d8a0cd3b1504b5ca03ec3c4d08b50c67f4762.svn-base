@@ -1,0 +1,281 @@
+<%@ page language="java" contentType="text/html; charset=UTF-8"
+    pageEncoding="UTF-8"%>
+<!DOCTYPE HTML>
+<html>
+	<head>
+		<meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
+		<title>소수의 취향</title>
+		<meta charset="utf-8"/>
+		<meta name="viewport" content="width=device-width, initial-scale=1"/>
+		<link rel="stylesheet" href="resources/assets/css/main.css"/>
+		<link rel="stylesheet" href="https://www.w3schools.com/w3css/4/w3.css">
+	</head>
+	<style>	
+		.mySlides {
+			display:none
+		}
+		
+		.w3-left, .w3-right, .w3-badge {
+			cursor:pointer
+		}
+		
+		.w3-badge {
+			height:13px;width:13px;padding:0
+		}
+	
+		ul.icons{
+			display: inline;
+		}
+		
+		::-webkit-scrollbar {width: 8px; height: 8px; border: 3px solid #fff;}
+		::-webkit-scrollbar-button:start:decrement,
+		::-webkit-scrollbar-button:end:increment {display: block; height: 10px; background: #efefef}
+		::-webkit-scrollbar-track {
+			background: #efefef; -webkit-border-radius: 10px; border-radius:10px;
+			-webkit-box-shadow: inset 0 0 4px rgba(0,0,0,.2)
+		}
+		::-webkit-scrollbar-thumb {
+			height: 50px; width: 50px; background: rgba(0,0,0,.2);
+			-webkit-border-radius: 8px; border-radius: 8px;
+			-webkit-box-shadow: inset 0 0 4px rgba(0,0,0,.1)
+		}
+		
+		#eb_log{
+			margin: 0px 0px 0px 20px;
+		}
+		
+		#eb_logo{
+			width: 209px;
+			height: auto;
+		}
+	</style>
+	<body>
+		<!-- 1번째 스크롤 -->
+		<div class="box">
+		<!-- Wrapper -->
+			<div id="wrapper">
+
+				<!-- Header -->
+					<header id="header">
+						<div id="eb_log">LOGOUT</div>
+						<nav class="links">
+							<ul>
+								<li><a href="#">mypage</a></li>
+								<li><a href="#">note</a></li>
+							</ul>
+						</nav>
+						<nav class="main">
+							<ul>
+								<!-- <li class="search">
+									<a class="fa-search" href="#search">Search</a>
+									<form id="search" method="get" action="#">
+										<input type="text" name="query" placeholder="Search" />
+									</form>
+								</li> -->
+								<li class="menu">
+									<a class="fa-bars" href="#menu">Menu</a>
+								</li>
+							</ul>
+						</nav>
+					</header>
+
+				<!-- Menu -->
+					<section id="menu">
+						<!-- Search -->
+							<!-- <section>
+								<form class="search" method="get" action="#">
+									<input type="text" name="query" placeholder="Search" />
+								</form>
+							</section> -->
+
+						<!-- Links -->
+							<section>
+								<ul class="links">
+									<li>
+										<a href="#">
+											<h3>사이트 소개</h3>
+											<p>'소수의 취향', 어떤 뜻인가요?</p>
+										</a>
+									</li>
+									<li>
+										<a href="#">
+											<h3>공지사항 / 이벤트</h3>
+											<p>전해드릴 소식과 이벤트가 있습니다.</p>
+										</a>
+									</li>
+									<li>
+										<a href="#">
+											<h3>취미 클래스</h3>
+											<p>당신의 새로운 취향을 찾아보세요!</p>
+										</a>
+									</li>
+									<li>
+										<a href="#">
+											<h3>포토 갤러리</h3>
+											<p>취미 아티스트's photo</p>
+										</a>
+									</li>
+									<li>
+										<a href="#">
+											<h3>자유 게시판</h3>
+											<p>이야기를 나누는 공간</p>
+										</a>
+									</li>
+									<li>
+										<a href="#">
+											<h3>투표 게시판</h3>
+											<p>나도 취미 아티스트가 되고 싶다면?</p>
+										</a>
+									</li>
+									<li>
+										<a href="#">
+											<h3>고객센터</h3>
+											<p>저희에게 궁금한 점이 있나요?</p>
+										</a>
+									</li>
+									<li>
+										<a href="#">
+											<h3>관리자 페이지</h3>
+										</a>
+									</li>
+								</ul>
+							</section>
+					</section>
+					
+					<!-- logo -->
+					<img id="eb_logo" src="resources/assets/img/logo.png"/>
+
+				<!-- Main -->
+					<div id="main">
+						<div class="w3-content w3-display-container" style="max-width:800px">
+							<img class="mySlides" src="resources/assets/img/main_rolling1.jpg" style="width:100%">
+							<img class="mySlides" src="resources/assets/img/main_rolling2.png" style="width:100%">
+							<div class="w3-center w3-container w3-section w3-large w3-text-white w3-display-bottommiddle" style="width:100%">
+							<div class="w3-left w3-hover-text-white" onclick="plusDivs(-1)">&#10094;</div>
+							<div class="w3-right w3-hover-text-white" onclick="plusDivs(1)">&#10095;</div>
+							<span class="w3-badge demo w3-border w3-transparent w3-hover-white" onclick="currentDiv(1)"></span>
+							<span class="w3-badge demo w3-border w3-transparent w3-hover-white" onclick="currentDiv(2)"></span>
+							</div>
+						</div>
+					</div>
+				</div>	
+			</div>
+			<div class="box" style="background-color:lightgray;">2</div>
+	    	<div class="box" style="background-color:lightgray;">3</div>
+	    	
+	    	<!-- 4번째 스크롤 -->
+	    	<div class="box" style="background-color:lightgray;">
+	    		<!-- About -->
+				<section class="blurb">
+					<h2>ABOUT</h2>
+				</section>
+
+				<!-- Footer -->
+				<section id="footer">
+					<ul class="icons">
+						<li><a href="https://twitter.com/?lang=ko" class="fa-twitter"><span class="label">Twitter</span></a></li>
+						<li><a href="https://ko-kr.facebook.com/" class="fa-facebook"><span class="label">Facebook</span></a></li>
+						<li><a href="https://www.instagram.com/?hl=ko" class="fa-instagram"><span class="label">Instagram</span></a></li>
+						<li><a href="https://www.google.nl/" class="fa-envelope"><span class="label">Email</span></a></li>
+						<p class="copyright">&copy; Hobby New</p>
+					</ul>
+				</section>
+	    	</div>
+
+		<!-- Scripts -->
+			<script src="resources/assets/js/jquery.min.js"></script>
+			<script src="resources/assets/js/skel.min.js"></script>
+			<script src="resources/assets/js/util.js"></script>
+			<script src="resources/assets/js/main.js"></script>
+	</body>
+	
+	<script>
+		/* rolling */
+		var slideIndex = 1;
+		showDivs(slideIndex);
+
+		function plusDivs(n) {
+		  showDivs(slideIndex += n);
+		}
+
+		function currentDiv(n) {
+		  showDivs(slideIndex = n);
+		}
+
+		function showDivs(n) {
+		  var i;
+		  var x = document.getElementsByClassName("mySlides");
+		  var dots = document.getElementsByClassName("demo");
+		  if (n > x.length) {slideIndex = 1}    
+		  if (n < 1) {slideIndex = x.length}
+		  for (i = 0; i < x.length; i++) {
+		     x[i].style.display = "none";  
+		  }
+		  
+		  for (i = 0; i < dots.length; i++) {
+		     dots[i].className = dots[i].className.replace(" w3-white", "");
+		  }
+		  
+		  x[slideIndex-1].style.display = "block";  
+		  dots[slideIndex-1].className += " w3-white";
+		}
+		
+		/* hover */
+		$("#eb_log").hover(function(){
+			$("#eb_log").css("color","orange");
+			$("#eb_log").css("cursor","pointer");
+		});
+		
+		/* hover */
+		$("#eb_log").mouseout(function(){
+			$("#eb_log").css("color","gray");
+			$("#eb_log").css("cursor","default");
+		});
+		
+		/* logout */
+		$("#eb_log").click(function(){
+			location.href="#";
+			console.log("logout");
+		});
+		
+		
+		/* scroll event */
+		window.onload = function () {
+          		$(".box").each(function () {
+              	
+          			// 개별적으로 Wheel 이벤트 적용
+              	$(this).on("mousewheel DOMMouseScroll", function (e) {
+              	console.log(e);
+                  e.preventDefault();
+                  
+                  var delta = 0;
+                  if (!event) event = window.event;
+                  if (event.wheelDelta) {
+                      delta = event.wheelDelta / 120;
+                      if (window.opera) delta = -delta;
+                  } else if (event.detail) delta = -event.detail / 3;
+                  var moveTop = null;
+                  // 마우스휠을 위에서 아래로
+                  if (delta < 0) {
+                      if ($(this).next() != undefined) {
+                          moveTop = $(this).next().offset().top;
+                      }
+                  // 마우스휠을 아래에서 위로
+                  } else {
+                      if ($(this).prev() != undefined) {
+                          moveTop = $(this).prev().offset().top;
+                      }
+                  }
+                  
+                  // 화면 이동 0.8초(800)
+                  $("html,body").stop().animate({
+                      scrollTop: moveTop + 'px'
+                  }, {
+                      	duration: 800, complete: function () {
+                      	}
+                  	});
+              	});
+          	});
+      	}
+	</script>
+</html>

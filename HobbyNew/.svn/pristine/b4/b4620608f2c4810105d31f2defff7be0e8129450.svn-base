@@ -1,0 +1,172 @@
+package icia.mvc.service;
+
+import java.io.File;
+import java.sql.Date;
+import java.text.ParseException;
+import java.text.SimpleDateFormat;
+import java.util.Calendar;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
+
+import javax.servlet.http.HttpServletRequest;
+import javax.servlet.http.HttpSession;
+
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.stereotype.Service;
+import org.springframework.util.FileCopyUtils;
+import org.springframework.web.multipart.MultipartFile;
+import org.springframework.web.servlet.ModelAndView;
+
+import icia.mvc.bean.Files;
+import icia.mvc.bean.Member;
+import icia.mvc.bean.Vote;
+import icia.mvc.dao.VoteDAO;
+
+@Service
+public class VoteMM {
+
+	@Autowired // 서버 시작 시 주입
+	private VoteDAO vDao;
+	private ModelAndView mav;
+	
+	@Autowired
+	private HttpSession session;
+	
+	// 글쓰기
+	public ModelAndView vWrite(Vote vote, MultipartFile[] v_file) {
+		mav = new ModelAndView();
+		UploadFile uploadFile = new UploadFile();
+		String view = "";
+        Member mb = (Member) session.getAttribute("mb");
+        String id = mb.getM_id();
+		vote.setM_id(id);
+		
+		/*//1.이클립스의 물리적 저장경로 찾기
+		String root=multi.getSession().getServletContext().getRealPath("/");*/
+		//저장경로를 넣을 변수
+		String path = ""; //저장 경로
+		path = uploadFile.getPath(vote.getFs_index());
+		System.out.println("투표 게시판 사진 저장 경로 : "+path);
+		
+		//2.폴더 생성을 꼭 할것...
+		File dir=new File(path);
+		if(!dir.isDirectory()){  //upload폴더 없다면
+			dir.mkdir();  //upload폴더 생성
+		}
+		
+		int flag = vDao.comboardWrite(vote);
+		if(flag != 0){
+			// 날짜 합치기 (시작 기간)
+			String result1 = vote.getVs_year()+"-"+vote.getVs_month()+"-"+vote.getVs_day();
+			vote.setV_startDay(Date.valueOf(result1));
+			
+			// 날짜 합치기 (끝나는 기간)
+			String result2 = vote.getVe_year()+"-"+vote.getVe_month()+"-"+vote.getVe_day();
+			vote.setV_endDay(Date.valueOf(result2));
+			System.out.println("투표 게시판 날짜 : "+vote.getV_startDay()+"//"+vote.getV_endDay());
+			flag = vDao.voteWrite(vote); // DB에 vote 데이터 저장
+			
+			if(flag == 1){
+				for(int i=0;i<vote.getVi_name().size();i++){
+					Map<String, Object> nameList = new HashMap<String, Object>();
+					nameList.put("cb_index", vote.getCb_index());
+					nameList.put("vi_name", vote.getVi_name().get(i));
+					flag = vDao.voteItemWrite(nameList); // DB에 voteItem(투표 항목) 데이터 저장
+				}
+				
+				// 파일을 첨부했을 경우
+				if(vote.getFileChk() == 1){
+					System.out.println("가져온 cb_index : "+vote.getCb_index());
+					Files files = null;
+					
+					if(flag != 0){
+						for(MultipartFile file:v_file) {
+				            String oriFileName = file.getOriginalFilename();
+				            // 저장할 파일이름
+				            String sysFileName = System.currentTimeMillis() + "-" + oriFileName;
+				            files = new Files();
+				            File dest = new File(path, sysFileName);
+				            try {
+				            	FileCopyUtils.copy(file.getBytes(), dest); //실질적 업로드
+							} catch (Exception e) {
+								e.printStackTrace();
+							}
+				            
+				            files.setM_id(id);
+				            files.setF_oriName(oriFileName);
+				            files.setF_newName(sysFileName);
+				            files.setCb_index(vote.getCb_index());
+				            files.setFs_index(vote.getFs_index());
+				            flag = vDao.voteFileInsert(files);//db에 등록
+					
+				            if(flag == 0){
+				            	mav.addObject("msg", "글쓰기에 실패하였습니다.");
+				                view="han/voteWrite";// 글쓰기 등록 실패할 경우
+				                System.out.println("글쓰기 실패");
+				                mav.setViewName(view);
+				                return mav;
+				            }
+				        }
+					}
+				}
+			}
+		}
+		
+		mav.addObject("msg", "글쓰기에 성공하였습니다.");
+        view="redirect:vote"; // 글쓰기 등록 성공할 경우
+        System.out.println("글쓰기 성공");
+            
+        mav.setViewName(view);
+        return mav;
+	}
+
+	// 투표 게시판 리스트 불러오기
+	public ModelAndView voteList(HttpServletRequest request) {
+		String view=null;
+		mav = new ModelAndView();
+		UploadFile uploadFile = new UploadFile();
+		
+		List<Vote> vList = vDao.voteList(); // comboard 가져오기
+		for(int i = 0;i<vList.size();i++){
+			// 해당 글의 첫번째 사진 이름 가져오기(뽑아온 리스트에서 cb_index 뽑아 보내기)
+			String f_newName = vDao.getVoteFile(vList.get(i).getCb_index());
+			vList.get(i).setF_newName(f_newName);
+		}
+		
+		// 남은 투표 기간 계산하기
+		for(int i=0;i<vList.size();i++){			
+			SimpleDateFormat vDay = new SimpleDateFormat("yyyy-MM-dd");
+			Calendar cal = Calendar.getInstance();
+			
+			String vToday = vDay.format(cal.getTime());
+			Date dtToday = Date.valueOf(vToday);
+			System.out.println("오늘 날짜 : "+dtToday);
+			
+			String endDay = vDay.format(vList.get(i).getV_endDay());
+			Date dtendDay = Date.valueOf(endDay);
+			System.out.println("투표 마지막 날짜 : "+dtendDay);
+			
+			long calDate = dtToday.getTime() - dtendDay.getTime();
+			long calculator = calDate/(24*60*60*1000);
+			
+			// 음수를 양수로 변환
+			long result = calculator;
+			result = Math.abs(result);
+			System.out.println("계산 결과 : "+result);
+			vList.get(i).setV_time(result);
+		}
+		
+		String path = uploadFile.getPath(6);
+		String[] realPath = path.split(":");
+		System.out.println("path : "+realPath[1]);
+		
+		mav.addObject("vList", vList);
+		mav.addObject("path", realPath[1]); // 사진 경로
+		
+		view="han/vote";
+		mav.setViewName(view);
+		return mav;
+	}
+
+}

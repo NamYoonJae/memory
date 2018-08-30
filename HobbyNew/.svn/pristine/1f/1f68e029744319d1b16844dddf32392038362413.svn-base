@@ -1,0 +1,7 @@
+package icia.mvc.dao;
+
+import icia.mvc.bean.Notice;
+
+public interface InoticeDAO {
+
+}
